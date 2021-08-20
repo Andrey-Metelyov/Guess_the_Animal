@@ -4,45 +4,63 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+class Animal {
+    String article;
+    String name;
+
+    Animal(String article, String name) {
+        this.article = article;
+        this.name = name;
+    }
+
+    public String nameWithArticle() {
+        return article + " " + name;
+    }
+}
+
 public class Main {
     static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
         greetings();
-        String animal1 = enterAnimal("Enter the first animal:");
-        String animal2 = enterAnimal("Enter the second animal:");
+        Animal animal1 = enterAnimal("Enter the first animal:");
+        Animal animal2 = enterAnimal("Enter the second animal:");
         String fact = enterFact(animal1, animal2);
 //        System.out.println("Is it " + animal + "?");
-        String answer = getAnswer();
-        System.out.println("You answered: " + answer);
+//        String answer = getAnswer();
+//        System.out.println("You answered: " + answer);
         bye();
     }
 
-    private static String enterFact(String animal1, String animal2) {
+    private static String enterFact(Animal animal1, Animal animal2) {
         String result = "";
         while (true) {
             System.out.println("Specify a fact that distinguishes " +
-                    animal1 + " from " + animal2 + ".\n" +
+                    animal1.nameWithArticle() + " from " + animal2.nameWithArticle() + ".\n" +
                     "The sentence should be of the format: 'It can/has/is ...'.");
             String input = scanner.nextLine().trim().toLowerCase();
             Pattern pattern = Pattern.compile("^it\\s+(can|has|is)\\s+(.+)");
             Matcher matcher = pattern.matcher(input);
             if (matcher.matches()) {
                 String verb = matcher.group(1);
-                String fact = addArticle(matcher.group(2));
-                System.out.println("Is it correct for " + animal2 + "?");
+                String fact = matcher.group(2);
+                if (verb.equals("has") || verb.equals("is")) {
+//                    fact = getArticle(fact);
+                }
+                System.out.println("Is it correct for " + animal2.nameWithArticle() + "?");
                 String answer = getAnswer();
                 System.out.println("I learned the following facts about animals:");
                 if (answer.equals("Yes")) {
-                    System.out.println(" - The " + animal1 + " " + verb + "n't " + fact);
-                    System.out.println(" - The " + animal2 + " " + verb + " " + fact);
+                    System.out.println("- The " + animal1.name + " " + negative(verb) + " " + fact + ".");
+                    System.out.println("- The " + animal2.name + " " + verb + " " + fact + ".");
                 } else {
-                    System.out.println(" - The " + animal1 + " " + verb + " " + fact);
-                    System.out.println(" - The " + animal2 + " " + verb + "n't " + fact);
+                    System.out.println("- The " + animal1.name + " " + verb + " " + fact + ".");
+                    System.out.println("- The " + animal2.name + " " + negative(verb) + " " + fact + ".");
                 }
                 System.out.println("I can distinguish these animals by asking the question:");
-                result = verb + " it " + fact + "?";
-                System.out.println(result);
+                verb = question(verb);
+                result = verb.substring(0, 1).toUpperCase() + verb.substring(1) + " it " + (verb.equals("does") ? "have " : "") + fact + "?";
+                System.out.println("- " + result);
                 break;
             } else {
                 System.out.println("The examples of a statement:\n" +
@@ -52,6 +70,17 @@ public class Main {
             }
         }
         return result;
+    }
+
+    private static String question(String verb) {
+        if (verb.equals("has")) return "does";
+        return verb;
+    }
+
+    private static String negative(String verb) {
+        if (verb.equals("can")) return "can't";
+        if (verb.equals("has")) return "doesn't have";
+        return "isn't";
     }
 
     private static void bye() {
@@ -99,32 +128,37 @@ public class Main {
         return lines[(int) (Math.random() * lines.length)];
     }
 
-    private static String addArticle(String word) {
+    private static String getArticle(String word) {
         String article;
         if ("aoeiu".contains(word.substring(0, 1))) {
             article = "an";
         } else {
             article = "a";
         }
-        return article + " " + word;
+        return article;
     }
 
-    private static String enterAnimal(String prompt) {
+    private static Animal enterAnimal(String prompt) {
         System.out.println(prompt);
         String[] input = scanner.nextLine().toLowerCase().split(" ", 2);
         String animal;
+        String article;
         if (input.length > 1) {
             if (input[0].equals("a") || input[0].equals("an")) {
-                animal = input[0] + " " + input[1];
+                article = input[0];
+                animal = input[1];
             } else if (input[0].equals("the")) {
-                animal = addArticle(input[1]);
+                article = getArticle(input[1]);
+                animal = input[1];
             } else {
-                animal = addArticle(input[0] + " " + input[1]);
+                article = getArticle(input[0]);
+                animal = input[0] + " " + input[1];
             }
         } else {
-            animal = addArticle(input[0]);
+            article = getArticle(input[0]);
+            animal = input[0];
         }
-        return animal;
+        return new Animal(article, animal);
     }
 
     private static void greetings() {

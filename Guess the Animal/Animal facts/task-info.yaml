@@ -378,22 +378,8 @@ files:
     - [finish, The program should finish.]
   learner_created: false
 feedback_link: https://hyperskill.org/projects/132/stages/704/implement#comment
-status: Failed
+status: Solved
 feedback:
-  message: "Wrong answer in test #3\n\nThe program should generate a fact about the\
-    \ first animals.\r\nExpected contains: &quot;The cat can climb trees&quot;\r\n\
-    Actual data is: &quot;I learned the following facts about animals:\n - The a cat\
-    \ can a climb trees\n - The a dog cann&#39;t a climb trees\nI can distinguish\
-    \ these animals by asking the question:\ncan it a climb trees&quot;.\n\nPlease\
-    \ find below the output of your program during this failed test.\nNote that the\
-    \ &#39;&gt;&#39; character indicates the beginning of the input line.\n\n---\n\
-    \nScenario &#39;complete-scenario&#39; is started.\n\nGood evening\nEnter the\
-    \ first animal:\n&gt; cat\nEnter the second animal:\n&gt; DOG\nSpecify a fact\
-    \ that distinguishes a cat from a dog.\nThe sentence should be of the format:\
-    \ &#39;It can/has/is ...&#39;.\n&gt; It can climb trees\nIs it correct for a dog?\n\
-    &gt; ha\nCould you please simply say yes or no?\n&gt; no\nI learned the following\
-    \ facts about animals:\n - The a cat can a climb trees\n - The a dog cann&#39;t\
-    \ a climb trees\nI can distinguish these animals by asking the question:\ncan\
-    \ it a climb trees"
-  time: Fri, 20 Aug 2021 10:49:08 UTC
+  message: Congratulations!
+  time: Fri, 20 Aug 2021 11:18:44 UTC
 record: -1
