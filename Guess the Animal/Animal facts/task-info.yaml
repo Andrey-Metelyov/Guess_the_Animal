@@ -100,6 +100,53 @@ files:
 
     }
   learner_created: false
+- name: test/GuessAnimalTest.java
+  visible: false
+  text: |+
+    import org.hyperskill.hstest.dynamic.DynamicTest;
+    import org.hyperskill.hstest.stage.StageTest;
+    import org.hyperskill.hstest.testcase.CheckResult;
+
+    import java.io.IOException;
+
+    public class GuessAnimalTest extends StageTest<String> {
+
+        final String[] script = new String[]{
+                "incorrect-statement",
+                "correct-statement",
+                "complete-scenario",
+                "facts-and-question"
+        };
+
+        @DynamicTest(data = "script")
+        CheckResult runScripts(final String script) throws IOException {
+            return new Scenario(script).check();
+        }
+
+    }
+
+  learner_created: false
+- name: test/correct-statement.script.yaml
+  visible: false
+  text: |
+    #
+    # This is a script to test correct statements.
+    #
+    ---
+    - [start]
+    - [input, cat]
+    - [input, dog]
+    - - contains
+      - Specify a fact that distinguishes a cat from a dog.
+      - The program should asks the user for a fact
+    #
+    # Here we substitute all correct statements from data file
+    #
+    - [input, "{0}"]
+    - - contains
+      - correct for a dog?
+      - The program should clarify if the statement is correct for a dog.
+  learner_created: false
 - name: test/incorrect-statement.script.yaml
   visible: false
   text: |
@@ -120,6 +167,123 @@ files:
     - - contains
       - "examples of a statement"
       - "The statement \"{0}\" doesn't fit the template. The program should show examples and ask the user again."
+  learner_created: false
+- name: test/complete-scenario.data.yaml
+  visible: false
+  text: |
+    #
+    # The data for the complete scenario from the start to the finish
+    #
+    ---
+    - - "cat"
+      - "DOG"
+      - "a cat"
+      - "a dog"
+      - "It can climb trees"
+      - "ha"
+      - "no"
+      - "The cat can climb trees"
+      - "The dog can't climb trees"
+      - "Can it climb trees?"
+
+    - - "hare"
+      - "wolf"
+      - "a hare"
+      - "a wolf"
+      - "It is a shy animal"
+      - "nej"
+      - "no"
+      - "The hare is a shy animal"
+      - "The wolf isn't a shy animal"
+      - "Is it a shy animal?"
+
+    - - "a lynx"
+      - "an unicorN"
+      - "a lynx"
+      - "an unicorn"
+      - "It is a fabulous animal?"
+      - "of c"
+      - "yes"
+      - "The lynx isn't a fabulous animal"
+      - "The unicorn is a fabulous animal"
+      - "Is it a fabulous animal?"
+  learner_created: false
+- name: test/incorrect-statement.data.yaml
+  visible: false
+  text: |
+    #
+    # All of these statements are wrong.
+    #
+    ---
+    - - "The dog barks"
+    - - "The cat meows"
+    - - "I don't know..."
+    - - "Who knows?"
+    - - "It flies"
+    - - "It barks"
+    - - "Can it fly?"
+    - - "It fly"
+    - - "may be it barks?"
+    - - "I do not what to say..."
+  learner_created: false
+- name: test/facts-and-question.data.yaml
+  visible: false
+  text: |
+    #
+    # This is a data file to test generated facts and a question
+    #
+
+    # --- user input ---
+    # The first animal
+    # The second animal
+    # The statement
+    # Is the statement correct for the second animal?
+
+    # --- expected output ---
+    # The fact for the first animal
+    # The fact for the second animal
+    # The closed question to distinguishes one animal from other
+    ---
+    - - cat
+      - shark
+      - it is a mammal
+      - no
+      - "The cat is a mammal."
+      - "The shark isn't a mammal."
+      - "Is it a mammal?"
+
+    - - wolf
+      - hare
+      - it is a shy animal
+      - yes
+      - "The wolf isn't a shy animal."
+      - "The hare is a shy animal."
+      - "Is it a shy animal?"
+
+
+    - - wolf
+      - fox
+      - it has a long bushy tail
+      - yes
+      - "The wolf doesn't have a long bushy tail."
+      - "The fox has a long bushy tail."
+      - "Does it have a long bushy tail?"
+
+    - - dog
+      - cat
+      - it can climb trees
+      - yes
+      - "The dog can't climb trees."
+      - "The cat can climb trees."
+      - "Can it climb trees?"
+
+    - - dog
+      - fox
+      - it is living in the forest
+      - yes
+      - "The dog isn't living in the forest."
+      - "The fox is living in the forest."
+      - "Is it living in the forest?"
   learner_created: false
 - name: test/correct-statement.data.yaml
   visible: false
@@ -181,32 +345,6 @@ files:
     - - finish
       - The program should finish after the correct response.
   learner_created: false
-- name: test/GuessAnimalTest.java
-  visible: false
-  text: |+
-    import org.hyperskill.hstest.dynamic.DynamicTest;
-    import org.hyperskill.hstest.stage.StageTest;
-    import org.hyperskill.hstest.testcase.CheckResult;
-
-    import java.io.IOException;
-
-    public class GuessAnimalTest extends StageTest<String> {
-
-        final String[] script = new String[]{
-                "incorrect-statement",
-                "correct-statement",
-                "complete-scenario",
-                "facts-and-question"
-        };
-
-        @DynamicTest(data = "script")
-        CheckResult runScripts(final String script) throws IOException {
-            return new Scenario(script).check();
-        }
-
-    }
-
-  learner_created: false
 - name: test/facts-and-question.script.yaml
   visible: false
   text: |-
@@ -239,144 +377,23 @@ files:
 
     - [finish, The program should finish.]
   learner_created: false
-- name: test/facts-and-question.data.yaml
-  visible: false
-  text: |
-    #
-    # This is a data file to test generated facts and a question
-    #
-
-    # --- user input ---
-    # The first animal
-    # The second animal
-    # The statement
-    # Is the statement correct for the second animal?
-
-    # --- expected output ---
-    # The fact for the first animal
-    # The fact for the second animal
-    # The closed question to distinguishes one animal from other
-    ---
-    - - cat
-      - shark
-      - it is a mammal
-      - no
-      - "The cat is a mammal."
-      - "The shark isn't a mammal."
-      - "Is it a mammal?"
-
-    - - wolf
-      - hare
-      - it is a shy animal
-      - yes
-      - "The wolf isn't a shy animal."
-      - "The hare is a shy animal."
-      - "Is it a shy animal?"
-
-
-    - - wolf
-      - fox
-      - it has a long bushy tail
-      - yes
-      - "The wolf doesn't have a long bushy tail."
-      - "The fox has a long bushy tail."
-      - "Does it have a long bushy tail?"
-
-    - - dog
-      - cat
-      - it can climb trees
-      - yes
-      - "The dog can't climb trees."
-      - "The cat can climb trees."
-      - "Can it climb trees?"
-
-    - - dog
-      - fox
-      - it is living in the forest
-      - yes
-      - "The dog isn't living in the forest."
-      - "The fox is living in the forest."
-      - "Is it living in the forest?"
-  learner_created: false
-- name: test/correct-statement.script.yaml
-  visible: false
-  text: |
-    #
-    # This is a script to test correct statements.
-    #
-    ---
-    - [start]
-    - [input, cat]
-    - [input, dog]
-    - - contains
-      - Specify a fact that distinguishes a cat from a dog.
-      - The program should asks the user for a fact
-    #
-    # Here we substitute all correct statements from data file
-    #
-    - [input, "{0}"]
-    - - contains
-      - correct for a dog?
-      - The program should clarify if the statement is correct for a dog.
-  learner_created: false
-- name: test/complete-scenario.data.yaml
-  visible: false
-  text: |
-    #
-    # The data for the complete scenario from the start to the finish
-    #
-    ---
-    - - "cat"
-      - "DOG"
-      - "a cat"
-      - "a dog"
-      - "It can climb trees"
-      - "ha"
-      - "no"
-      - "The cat can climb trees"
-      - "The dog can't climb trees"
-      - "Can it climb trees?"
-
-    - - "hare"
-      - "wolf"
-      - "a hare"
-      - "a wolf"
-      - "It is a shy animal"
-      - "nej"
-      - "no"
-      - "The hare is a shy animal"
-      - "The wolf isn't a shy animal"
-      - "Is it a shy animal?"
-
-    - - "a lynx"
-      - "an unicorN"
-      - "a lynx"
-      - "an unicorn"
-      - "It is a fabulous animal?"
-      - "of c"
-      - "yes"
-      - "The lynx isn't a fabulous animal"
-      - "The unicorn is a fabulous animal"
-      - "Is it a fabulous animal?"
-  learner_created: false
-- name: test/incorrect-statement.data.yaml
-  visible: false
-  text: |
-    #
-    # All of these statements are wrong.
-    #
-    ---
-    - - "The dog barks"
-    - - "The cat meows"
-    - - "I don't know..."
-    - - "Who knows?"
-    - - "It flies"
-    - - "It barks"
-    - - "Can it fly?"
-    - - "It fly"
-    - - "may be it barks?"
-    - - "I do not what to say..."
-  learner_created: false
 feedback_link: https://hyperskill.org/projects/132/stages/704/implement#comment
-status: Unchecked
+status: Failed
+feedback:
+  message: "Wrong answer in test #3\n\nThe program should generate a fact about the\
+    \ first animals.\r\nExpected contains: &quot;The cat can climb trees&quot;\r\n\
+    Actual data is: &quot;I learned the following facts about animals:\n - The a cat\
+    \ can a climb trees\n - The a dog cann&#39;t a climb trees\nI can distinguish\
+    \ these animals by asking the question:\ncan it a climb trees&quot;.\n\nPlease\
+    \ find below the output of your program during this failed test.\nNote that the\
+    \ &#39;&gt;&#39; character indicates the beginning of the input line.\n\n---\n\
+    \nScenario &#39;complete-scenario&#39; is started.\n\nGood evening\nEnter the\
+    \ first animal:\n&gt; cat\nEnter the second animal:\n&gt; DOG\nSpecify a fact\
+    \ that distinguishes a cat from a dog.\nThe sentence should be of the format:\
+    \ &#39;It can/has/is ...&#39;.\n&gt; It can climb trees\nIs it correct for a dog?\n\
+    &gt; ha\nCould you please simply say yes or no?\n&gt; no\nI learned the following\
+    \ facts about animals:\n - The a cat can a climb trees\n - The a dog cann&#39;t\
+    \ a climb trees\nI can distinguish these animals by asking the question:\ncan\
+    \ it a climb trees"
+  time: Fri, 20 Aug 2021 10:49:08 UTC
 record: -1
