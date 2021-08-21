@@ -5,8 +5,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class Animal {
-    String article;
-    String name;
+    final String article;
+    final String name;
 
     Animal(String article, String name) {
         this.article = article;
@@ -19,7 +19,7 @@ class Animal {
 }
 
 public class Main {
-    static Scanner scanner = new Scanner(System.in);
+    static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
         greetings();

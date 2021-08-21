@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
@@ -11,6 +12,15 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/Guess the Animal/task" />
+            <option value="$PROJECT_DIR$/Topics/Binary search tree in Java/The depth of the nodes" />
+            <option value="$PROJECT_DIR$/Topics/Binary search tree in Java/The height of the tree" />
+            <option value="$PROJECT_DIR$/Topics/Binary search tree in Java/The in-order traversal" />
+            <option value="$PROJECT_DIR$/Topics/Binary search tree in Java/Theory" />
+            <option value="$PROJECT_DIR$/Topics/Trees in Java/A full binary tree" />
+            <option value="$PROJECT_DIR$/Topics/Trees in Java/Finding the leaves of a tree" />
+            <option value="$PROJECT_DIR$/Topics/Trees in Java/The height of a tree (v1)" />
+            <option value="$PROJECT_DIR$/Topics/Trees in Java/The height of a tree (v2)" />
+            <option value="$PROJECT_DIR$/Topics/Trees in Java/Theory" />
             <option value="$PROJECT_DIR$/util" />
           </set>
         </option>

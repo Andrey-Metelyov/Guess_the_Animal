@@ -8,115 +8,6 @@ files:
     public class Main {
     }
   learner_created: false
-- name: test/unclear-answers.script.yaml
-  visible: false
-  text: |
-    #
-    # This is a script to test the interpretation of unclear responses.
-    #
-    ---
-    - [start]
-    - [input, cat]
-    - [input, ""]   # Press Enter to start the game
-    #
-    # The game started
-    #
-    - [contains, "Is it a cat?", "The program should ask: \"Is it a cat?\""]
-    #
-    # Here we substitute all values from the data file
-    #
-    - [input, "{0}"]
-    - - contains
-      - "yes or no"
-      - "The answer \"{0}\" is unclear and the program should ask again."
-  learner_created: false
-- name: test/unclear-answers.data.yaml
-  visible: false
-  text: |-
-    #
-    # All of the following expressions should be treated as unclear
-    #
-    ---
-    - - y..
-    - - Y!.
-    - - ye
-    - - jes
-    - - Jes
-    - - yes...
-    - - да
-    - - Так
-    - - yes, yes
-    - - Yea
-    - - Ja
-    - - Jawohl!
-    - - ja natürlich!
-    - - so genau
-    - - 1
-    - - +
-    - - yepi
-    - - Yep!!
-    - - Yes, sure!
-    - - Ok
-    - - Rights
-    - - affErmative
-    - - n..
-    - - N!!
-    - - nea
-    - - nop
-    - - noppi
-    - - no wa
-    - - no way!!!
-    - - na
-    - - nahi
-    - - nega
-    - - negat
-    - - negati
-    - - negativ
-    - - i don't think..
-    - - i don't
-    - - i
-    - - I no
-    - - i don't think so...
-    - -
-  learner_created: false
-- name: test/the-first-question.script.yaml
-  visible: false
-  text: |-
-    #
-    # This is a script to test the generation of the first question.
-    #
-    ---
-    - [start]
-    - [input, "{0}"]
-    - [input, ""]   # Press Enter to start the game
-    #
-    # The game started
-    #
-    - [contains, "Is it {1}?", "The program should ask: \"Is it {1}?\""]
-  learner_created: false
-- name: test/positive-answers.script.yaml
-  visible: false
-  text: |+
-    #
-    # This is a script to test the correct interpretation of negative responses.
-    #
-    ---
-    - [start]
-    - [input, cat]
-    - [input, ""]   # Press Enter to start the game
-    #
-    # The game started
-    #
-    - [contains, "Is it a cat?", "The program should ask: \"Is it a cat?\""]
-    #
-    # Here we substitute all values from the data file
-    #
-    - [input, "{0}"]
-    - - not contains
-      - "yes or no"
-      - "The answer \"{0}\" should be treated as correct positive."
-
-  learner_created: false
 - name: test/Scenario.java
   visible: false
   text: |-
@@ -209,21 +100,30 @@ files:
 
     }
   learner_created: false
-- name: test/the-first-question.data.yaml
+- name: test/GuessAnimalTest.java
   visible: false
   text: |-
-    ---
-    - [cat, a cat]
-    - [DOG, a dog]
-    - [hare, a hare]
-    - [WOLF, a wolf]
-    - [uniCorn, an unicorn]
-    - [uniCorn, an unicorn]
-    - [A Unicorn, a unicorn]
-    - [APE, an ape]
-    - [uniCorn, an unicorn]
-    - [uniCorn, an unicorn]
-    - [linX, a linx]
+    import org.hyperskill.hstest.dynamic.DynamicTest;
+    import org.hyperskill.hstest.stage.StageTest;
+    import org.hyperskill.hstest.testcase.CheckResult;
+
+    import java.io.IOException;
+
+    public class GuessAnimalTest extends StageTest<String> {
+        final String[] script = new String[]{
+                "the-first-question",
+                "positive-answers",
+                "negative-answers",
+                "unclear-answers",
+                "guessing-game"
+        };
+
+        @DynamicTest(data = "script")
+        CheckResult runScripts(final String script) throws IOException {
+            return new Scenario(script).check();
+        }
+
+    }
   learner_created: false
 - name: test/positive-answers.data.yaml
   visible: false
@@ -280,31 +180,6 @@ files:
     - - you said it.
     - - you said it!
     - - you said it
-  learner_created: false
-- name: test/GuessAnimalTest.java
-  visible: false
-  text: |-
-    import org.hyperskill.hstest.dynamic.DynamicTest;
-    import org.hyperskill.hstest.stage.StageTest;
-    import org.hyperskill.hstest.testcase.CheckResult;
-
-    import java.io.IOException;
-
-    public class GuessAnimalTest extends StageTest<String> {
-        final String[] script = new String[]{
-                "the-first-question",
-                "positive-answers",
-                "negative-answers",
-                "unclear-answers",
-                "guessing-game"
-        };
-
-        @DynamicTest(data = "script")
-        CheckResult runScripts(final String script) throws IOException {
-            return new Scenario(script).check();
-        }
-
-    }
   learner_created: false
 - name: test/negative-answers.script.yaml
   visible: false
@@ -414,6 +289,71 @@ files:
         no
         no
       - a dog
+  learner_created: false
+- name: test/unclear-answers.data.yaml
+  visible: false
+  text: |-
+    #
+    # All of the following expressions should be treated as unclear
+    #
+    ---
+    - - y..
+    - - Y!.
+    - - ye
+    - - jes
+    - - Jes
+    - - yes...
+    - - да
+    - - Так
+    - - yes, yes
+    - - Yea
+    - - Ja
+    - - Jawohl!
+    - - ja natürlich!
+    - - so genau
+    - - 1
+    - - +
+    - - yepi
+    - - Yep!!
+    - - Yes, sure!
+    - - Ok
+    - - Rights
+    - - affErmative
+    - - n..
+    - - N!!
+    - - nea
+    - - nop
+    - - noppi
+    - - no wa
+    - - no way!!!
+    - - na
+    - - nahi
+    - - nega
+    - - negat
+    - - negati
+    - - negativ
+    - - i don't think..
+    - - i don't
+    - - i
+    - - I no
+    - - i don't think so...
+    - -
+  learner_created: false
+- name: test/the-first-question.data.yaml
+  visible: false
+  text: |-
+    ---
+    - [cat, a cat]
+    - [DOG, a dog]
+    - [hare, a hare]
+    - [WOLF, a wolf]
+    - [uniCorn, an unicorn]
+    - [uniCorn, an unicorn]
+    - [A Unicorn, a unicorn]
+    - [APE, an ape]
+    - [uniCorn, an unicorn]
+    - [uniCorn, an unicorn]
+    - [linX, a linx]
   learner_created: false
 - name: test/guessing-game.script.yaml
   visible: false
@@ -580,6 +520,66 @@ files:
     - - finish
       - If we do not want to play any more, then the program should exit.
 
+  learner_created: false
+- name: test/the-first-question.script.yaml
+  visible: false
+  text: |-
+    #
+    # This is a script to test the generation of the first question.
+    #
+    ---
+    - [start]
+    - [input, "{0}"]
+    - [input, ""]   # Press Enter to start the game
+    #
+    # The game started
+    #
+    - [contains, "Is it {1}?", "The program should ask: \"Is it {1}?\""]
+  learner_created: false
+- name: test/positive-answers.script.yaml
+  visible: false
+  text: |+
+    #
+    # This is a script to test the correct interpretation of negative responses.
+    #
+    ---
+    - [start]
+    - [input, cat]
+    - [input, ""]   # Press Enter to start the game
+    #
+    # The game started
+    #
+    - [contains, "Is it a cat?", "The program should ask: \"Is it a cat?\""]
+    #
+    # Here we substitute all values from the data file
+    #
+    - [input, "{0}"]
+    - - not contains
+      - "yes or no"
+      - "The answer \"{0}\" should be treated as correct positive."
+
+  learner_created: false
+- name: test/unclear-answers.script.yaml
+  visible: false
+  text: |
+    #
+    # This is a script to test the interpretation of unclear responses.
+    #
+    ---
+    - [start]
+    - [input, cat]
+    - [input, ""]   # Press Enter to start the game
+    #
+    # The game started
+    #
+    - [contains, "Is it a cat?", "The program should ask: \"Is it a cat?\""]
+    #
+    # Here we substitute all values from the data file
+    #
+    - [input, "{0}"]
+    - - contains
+      - "yes or no"
+      - "The answer \"{0}\" is unclear and the program should ask again."
   learner_created: false
 feedback_link: https://hyperskill.org/projects/132/stages/705/implement#comment
 status: Unchecked

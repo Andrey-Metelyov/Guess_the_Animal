@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id=":Topics-Binary_search_tree_in_Java-The_height_of_the_tree" external.linked.project.path="$MODULE_DIR$/../../../../../Topics/Binary search tree in Java/The height of the tree" external.root.project.path="$MODULE_DIR$/../../../../.." external.system.id="GRADLE" external.system.module.group="Guess_the_Animal" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../../../../Topics/Binary search tree in Java/The height of the tree">
+      <excludeFolder url="file://$MODULE_DIR$/../../../../../Topics/Binary search tree in Java/The height of the tree/.gradle" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../../../Topics/Binary search tree in Java/The height of the tree/build" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../../../Topics/Binary search tree in Java/The height of the tree/out" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
