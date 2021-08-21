@@ -1,5 +1,8 @@
 package animals;
 
+import utils.AnimalKnowledgeTree;
+import utils.Util;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,12 +25,20 @@ public class Main {
     static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
+        AnimalKnowledgeTree tree = new AnimalKnowledgeTree();
         greetings();
-        Animal animal1 = enterAnimal("Enter the first animal:");
-        Animal animal2 = enterAnimal("Enter the second animal:");
-        String fact = enterFact(animal1, animal2);
+        Animal animal = enterAnimal("Which animal do you like most?");
+        tree.insert(animal.name, true);
+        System.out.println("Wonderful! I've learned so much about animals!");
+        System.out.println("Let's play a game!\n" +
+                "You think of an animal, and I guess it.\n" +
+                "Press enter when you're ready.");
+        tree.startGame();
+        System.out.println(tree.getQuestion());
+        String answer = getAnswer();
+//        Animal animal2 = enterAnimal("Enter the second animal:");
+//        String fact = enterFact(animal1, animal2);
 //        System.out.println("Is it " + animal + "?");
-//        String answer = getAnswer();
 //        System.out.println("You answered: " + answer);
         bye();
     }
@@ -128,16 +139,6 @@ public class Main {
         return lines[(int) (Math.random() * lines.length)];
     }
 
-    private static String getArticle(String word) {
-        String article;
-        if ("aoeiu".contains(word.substring(0, 1))) {
-            article = "an";
-        } else {
-            article = "a";
-        }
-        return article;
-    }
-
     private static Animal enterAnimal(String prompt) {
         System.out.println(prompt);
         String[] input = scanner.nextLine().toLowerCase().split(" ", 2);
@@ -148,14 +149,14 @@ public class Main {
                 article = input[0];
                 animal = input[1];
             } else if (input[0].equals("the")) {
-                article = getArticle(input[1]);
+                article = Util.getArticle(input[1]);
                 animal = input[1];
             } else {
-                article = getArticle(input[0]);
+                article = Util.getArticle(input[0]);
                 animal = input[0] + " " + input[1];
             }
         } else {
-            article = getArticle(input[0]);
+            article = Util.getArticle(input[0]);
             animal = input[0];
         }
         return new Animal(article, animal);
