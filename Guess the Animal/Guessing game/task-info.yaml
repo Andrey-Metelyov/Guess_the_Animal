@@ -581,12 +581,18 @@ files:
       - "yes or no"
       - "The answer \"{0}\" is unclear and the program should ask again."
   learner_created: false
-- name: src/utils/AnimalKnowledgeTree.java
-  visible: true
-  learner_created: true
 - name: src/utils/Util.java
   visible: true
   learner_created: true
+- name: src/animals/Animal.java
+  visible: true
+  learner_created: true
+- name: src/animals/AnimalKnowledgeTree.java
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/132/stages/705/implement#comment
-status: Unchecked
+status: Solved
+feedback:
+  message: Congratulations!
+  time: Sun, 22 Aug 2021 07:37:54 UTC
 record: -1
