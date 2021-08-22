@@ -11,6 +11,8 @@ import utils.Util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -58,6 +60,48 @@ public class AnimalKnowledgeTree {
     Node root;
     Node current;
 
+    public List<String> searchFacts(String animal) {
+        List<String> result = new ArrayList<>();
+        Node n = search(root, animal);
+        while (n.parent != null) {
+            if (n.parent.fact != null) {
+                result.add(n.parent.fact);
+            }
+            n = n.parent;
+        }
+        return result;
+    }
+
+    private Node search(Node t, String animal) {
+        if (t == null || t.animal != null && t.animal.name.equals(animal)) {
+            // return null or node with key
+            return t;
+        }
+        Node n = search(t.no, animal);
+        if (n == null) {
+            return search(t.yes, animal);
+        } else {
+            return n;
+        }
+    }
+
+    public List<Animal> getAnimals() {
+        List<Animal> list = new ArrayList<>();
+        dfs(root, list);
+        return list;
+    }
+
+    private void dfs(Node t, List<Animal> list) {
+        if (t == null) {
+            return;
+        }
+        if (t.animal != null) {
+            list.add(t.animal);
+        }
+        dfs(t.yes, list);
+        dfs(t.no, list);
+    }
+
     public boolean isEmpty() {
         return root == null;
     }
@@ -78,7 +122,7 @@ public class AnimalKnowledgeTree {
         try {
             root = objectMapper.readValue(new File(file), Node.class);
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
     }
 
