@@ -10,11 +10,16 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         AnimalKnowledgeTree tree = new AnimalKnowledgeTree();
+        tree.loadFromFile();
         Util.greetings();
-        System.out.println("I want to learn about animals.");
-        Animal animal = Util.enterAnimal("Which animal do you like most?");
-        tree.insertAnimal(animal);
-        System.out.println("Wonderful! I've learned so much about animals!");
+        if (tree.isEmpty()) {
+            System.out.println("I want to learn about animals.");
+            Animal animal = Util.enterAnimal("Which animal do you like most?");
+            tree.insertAnimal(animal);
+            System.out.println("Wonderful! I've learned so much about animals!");
+        } else {
+            System.out.println("I know a lot about animals.");
+        }
         while (true) {
             System.out.println("Let's play a game!\n" +
                     "You think of an animal, and I guess it.\n" +
@@ -30,8 +35,7 @@ public class Main {
                 break;
             }
         }
-        tree.saveFile();
+        tree.saveToFile();
         Util.bye();
     }
-
 }

@@ -13,9 +13,9 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
-
 public class AnimalKnowledgeTree {
+    static final String fileName = "animals.json";
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     static class Node {
         public String fact;
@@ -56,8 +56,21 @@ public class AnimalKnowledgeTree {
     Node root;
     Node current;
 
-    public void saveFile() throws IOException {
-        String fileName = "animals.json";
+    public boolean isEmpty() {
+        return root == null;
+    }
+
+    public void loadFromFile() {
+        System.err.println("loadFromFile " + fileName);
+        ObjectMapper objectMapper = new JsonMapper();
+        try {
+            root = objectMapper.readValue(new File(fileName), Node.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveToFile() throws IOException {
         System.err.println("Saving file " + fileName);
         ObjectMapper objectMapper = new JsonMapper();
         objectMapper
@@ -204,20 +217,20 @@ public class AnimalKnowledgeTree {
         root = new Node(animal, null);
     }
 
-    public static void main(String[] args) throws IOException {
-        AnimalKnowledgeTree tree = new AnimalKnowledgeTree();
-        Node root = new Node("fact", null, null, null, null);
-        tree.root = root;
-//        root = new Node();
-        tree.root.yes = new Node(new Animal("a", "cat"), tree.root);
-        tree.root.no = new Node("another fact", tree.root);
-        tree.root.no.yes = new Node(new Animal("a", "doggy"), tree.root.no);
-        tree.root.no.no = new Node(new Animal("a", "batty"), tree.root.no);
-        String fileName = "AnimalKnowledgeTree.json";
-        ObjectMapper objectMapper = new JsonMapper();
-
-        objectMapper
-                .writerWithDefaultPrettyPrinter()
-                .writeValue(new File(fileName), tree.root);
-    }
+//    public static void main(String[] args) throws IOException {
+//        AnimalKnowledgeTree tree = new AnimalKnowledgeTree();
+//        Node root = new Node("fact", null, null, null, null);
+//        tree.root = root;
+////        root = new Node();
+//        tree.root.yes = new Node(new Animal("a", "cat"), tree.root);
+//        tree.root.no = new Node("another fact", tree.root);
+//        tree.root.no.yes = new Node(new Animal("a", "doggy"), tree.root.no);
+//        tree.root.no.no = new Node(new Animal("a", "batty"), tree.root.no);
+//        String fileName = "AnimalKnowledgeTree.json";
+//        ObjectMapper objectMapper = new JsonMapper();
+//
+//        objectMapper
+//                .writerWithDefaultPrettyPrinter()
+//                .writeValue(new File(fileName), tree.root);
+//    }
 }
