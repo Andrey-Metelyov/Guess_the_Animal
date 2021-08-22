@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import utils.Util;
 
 import java.io.File;
@@ -14,7 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AnimalKnowledgeTree {
-    static final String fileName = "animals.json";
+    static final String fileName = "animals";
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     static class Node {
@@ -60,22 +62,42 @@ public class AnimalKnowledgeTree {
         return root == null;
     }
 
-    public void loadFromFile() {
-        System.err.println("loadFromFile " + fileName);
-        ObjectMapper objectMapper = new JsonMapper();
+    public void loadFromFile(String type) {
+        String file = fileName + "." + type;
+        System.err.println("loadFromFile " + file);
+        ObjectMapper objectMapper;
+        if (type.equals("json")) {
+            objectMapper = new JsonMapper();
+        } else if (type.equals("xml")) {
+            objectMapper = new XmlMapper();
+        } else if (type.equals("yaml")) {
+            objectMapper = new YAMLMapper();
+        } else {
+            return;
+        }
         try {
-            root = objectMapper.readValue(new File(fileName), Node.class);
+            root = objectMapper.readValue(new File(file), Node.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void saveToFile() throws IOException {
-        System.err.println("Saving file " + fileName);
-        ObjectMapper objectMapper = new JsonMapper();
+    public void saveToFile(String type) throws IOException {
+        String file = fileName + "." + type;
+        System.err.println("Saving file " + file);
+        ObjectMapper objectMapper;
+        if (type.equals("json")) {
+            objectMapper = new JsonMapper();
+        } else if (type.equals("xml")) {
+            objectMapper = new XmlMapper();
+        } else if (type.equals("yaml")) {
+            objectMapper = new YAMLMapper();
+        } else {
+            return;
+        }
         objectMapper
                 .writerWithDefaultPrettyPrinter()
-                .writeValue(new File(fileName), root);
+                .writeValue(new File(file), root);
     }
 
     void enterFact(Animal animal2) {

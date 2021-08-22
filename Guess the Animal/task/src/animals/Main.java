@@ -9,8 +9,17 @@ public class Main {
     static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) throws IOException {
+        String type = "json";
+        if (args.length > 1) {
+            if (args[0].equals("-type")) {
+                type = args[1];
+            }
+        }
+        System.err.println(Arrays.toString(args));
         AnimalKnowledgeTree tree = new AnimalKnowledgeTree();
-        tree.loadFromFile();
+
+        tree.loadFromFile(type);
+
         Util.greetings();
         if (tree.isEmpty()) {
             System.out.println("I want to learn about animals.");
@@ -35,7 +44,7 @@ public class Main {
                 break;
             }
         }
-        tree.saveToFile();
+        tree.saveToFile(type);
         Util.bye();
     }
 }
