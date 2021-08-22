@@ -30,14 +30,6 @@ files:
       - "yes or no"
       - "The answer \"{0}\" is unclear and the program should ask again."
   learner_created: false
-- name: test/file-formats.data.yaml
-  visible: false
-  text: |-
-    ---
-    - - json
-    - - xml
-    - - yaml
-  learner_created: false
 - name: test/Scenario.java
   visible: false
   text: |-
@@ -381,6 +373,362 @@ files:
     - [uniCorn, an unicorn]
     - [linX, a linx]
   learner_created: false
+- name: test/positive-answers.script.yaml
+  visible: false
+  text: |+
+    #
+    # This is a script to test the correct interpretation of negative responses.
+    #
+    ---
+    - [start]
+    - [input, cat]
+    - [input, ""]   # Press Enter to start the game
+    #
+    # The game started
+    #
+    - [contains, "Is it a cat?", "The program should ask: \"Is it a cat?\""]
+    #
+    # Here we substitute all values from the data file
+    #
+    - [input, "{0}"]
+    - - not contains
+      - "yes or no"
+      - "The answer \"{0}\" should be treated as correct positive."
+
+  learner_created: false
+- name: src/animals/Animal.java
+  visible: true
+  text: |
+    package animals;
+
+    public class Animal {
+        final public String article;
+        final public String name;
+
+        public Animal(String article, String name) {
+            this.article = article;
+            this.name = name;
+        }
+
+        public String nameWithArticle() {
+            return article + " " + name;
+        }
+
+        @Override
+        public String toString() {
+            return "Animal{" + "'" + article + " " + name + "'}";
+        }
+    }
+  learner_created: true
+- name: src/utils/Util.java
+  visible: true
+  text: |
+    package utils;
+
+    import animals.Animal;
+
+    import java.util.Arrays;
+    import java.util.Calendar;
+    import java.util.List;
+    import java.util.Scanner;
+
+    public class Util {
+        public static String getArticle(String word) {
+            String article;
+            if ("aoeiu".contains(word.substring(0, 1))) {
+                article = "an";
+            } else {
+                article = "a";
+            }
+            return article;
+        }
+
+        public static Animal enterAnimal(String prompt) {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println(prompt);
+            String[] input = scanner.nextLine().toLowerCase().split(" ", 2);
+            String animal;
+            String article;
+            if (input.length > 1) {
+                if (input[0].equals("a") || input[0].equals("an")) {
+                    article = input[0];
+                    animal = input[1];
+                } else if (input[0].equals("the")) {
+                    article = getArticle(input[1]);
+                    animal = input[1];
+                } else {
+                    article = getArticle(input[0]);
+                    animal = input[0] + " " + input[1];
+                }
+            } else {
+                article = getArticle(input[0]);
+                animal = input[0];
+            }
+            return new Animal(article, animal);
+        }
+
+        public static String getAnswer(String question) {
+            Scanner scanner = new Scanner(System.in);
+            List<String> positiveAnswers = Arrays.asList(
+                    "y", "yes", "yeah", "yep", "sure", "right",
+                    "affirmative", "correct", "indeed", "you bet",
+                    "exactly", "you said it");
+            List<String> negativeAnswers = Arrays.asList(
+                    "n", "no", "no way", "nah", "nope", "negative",
+                    "i don't think so", "yeah no"
+            );
+            String[] dontUnderstands = {
+                    "I'm not sure I caught you: was it yes or no?",
+                    "Funny, I still don't understand, is it yes or no?",
+                    "Oh, it's too complicated for me: just tell me yes or no.",
+                    "Could you please simply say yes or no?",
+                    "Oh, no, don't try to confuse me: say yes or no."
+            };
+            System.out.println(question);
+            while (true) {
+                String answer = scanner.nextLine()
+                        .trim()
+                        .toLowerCase()
+                        .replaceAll("[.!]$", "");
+                if (positiveAnswers.contains(answer)) {
+                    return "Yes";
+                } else if (negativeAnswers.contains(answer)) {
+                    return "No";
+                }
+                System.out.println(Util.getRandomLine(dontUnderstands));
+            }
+        }
+
+        public static String getRandomLine(String[] lines) {
+            return lines[(int) (Math.random() * lines.length)];
+        }
+
+        public static String question(String verb) {
+            if (verb.equals("has")) return "does";
+            return verb;
+        }
+
+        public static String negative(String verb) {
+            if (verb.equals("can")) return "can't";
+            if (verb.equals("has")) return "doesn't have";
+            return "isn't";
+        }
+
+        public static void greetings() {
+            Calendar calendar = Calendar.getInstance();
+            int hours = calendar.get(Calendar.HOUR_OF_DAY);
+            if (hours >= 5 && hours < 12) {
+                System.out.println("Good morning");
+            } else if (hours > 12 && hours < 18) {
+                System.out.println("Good afternoon");
+            } else {
+                System.out.println("Good evening");
+            }
+        }
+
+        public static void bye() {
+            String[] byes = {
+                    "Have a nice day!",
+                    "See you soon!",
+                    "Bye!",
+                    "Пока",
+                    "Aufwiedesein"
+            };
+            System.out.println(getRandomLine(byes));
+        }
+    }
+  learner_created: true
+- name: src/animals/AnimalKnowledgeTree.java
+  visible: true
+  text: |
+    package animals;
+
+
+    import animals.Animal;
+    import utils.Util;
+
+    import java.util.Scanner;
+    import java.util.regex.Matcher;
+    import java.util.regex.Pattern;
+
+    public class AnimalKnowledgeTree {
+        static class Node {
+            String fact;
+            Animal animal;
+            Node parent;
+            Node yes;
+            Node no;
+
+            public Node(String fact, Node parent) {
+                this.parent = parent;
+                this.fact = fact;
+                this.animal = null;
+            }
+            public Node(Animal animal, Node parent) {
+                this.parent = parent;
+                this.fact = null;
+                this.animal = animal;
+            }
+
+            @Override
+            public String toString() {
+                return "fact='" + fact + '\'' + ", animal=" + animal;
+            }
+        }
+
+        Node root;
+        Node current;
+
+        void enterFact(Animal animal2) {
+            Scanner scanner = new Scanner(System.in);
+            String result = "";
+            Animal animal1 = current.animal;
+            while (true) {
+                System.out.println("Specify a fact that distinguishes " +
+                        animal1.nameWithArticle() + " from " + animal2.nameWithArticle() + ".\n" +
+                        "The sentence should be of the format: 'It can/has/is ...'.");
+                String input = scanner.nextLine().trim().toLowerCase();
+                Pattern pattern = Pattern.compile("^it\\s+(can|has|is)\\s+(.+)");
+                Matcher matcher = pattern.matcher(input);
+                if (matcher.matches()) {
+                    String verb = matcher.group(1);
+                    String fact = matcher.group(2);
+                    if (verb.equals("has") || verb.equals("is")) {
+    //                    fact = getArticle(fact);
+                    }
+                    String answer = Util.getAnswer("Is it correct for " + animal2.nameWithArticle() + "?");
+                    verb = Util.question(verb);
+                    result = verb.substring(0, 1).toUpperCase() + verb.substring(1) + " it " + (verb.equals("does") ? "have " : "") + fact + "?";
+                    System.out.println("I learned the following facts about animals:");
+                    if (answer.equals("Yes")) {
+                        System.out.println("- The " + animal1.name + " " + Util.negative(verb) + " " + fact + ".");
+                        System.out.println("- The " + animal2.name + " " + verb + " " + fact + ".");
+                    } else {
+                        System.out.println("- The " + animal1.name + " " + verb + " " + fact + ".");
+                        System.out.println("- The " + animal2.name + " " + Util.negative(verb) + " " + fact + ".");
+                    }
+
+                    insertFactAndNewAnimal(result, animal2, answer.equals("Yes"));
+
+                    System.out.println("I can distinguish these animals by asking the question:");
+                    System.out.println("- " + result);
+                    System.out.println("Nice! I've learned so much about animals!");
+                    break;
+                } else {
+                    System.out.println("The examples of a statement:\n" +
+                            " - It can fly\n" +
+                            " - It has horn\n" +
+                            " - It is a mammal");
+                }
+            }
+        }
+
+        public boolean processAnswer(String answer) {
+            System.err.println(current + " -> " + answer);
+            if (answer.equals("Yes")) {
+                System.err.println(current.yes);
+                if (current.animal != null) {
+                    // game over
+                    return true;
+                } else if (current.yes == null) {
+                    Animal animal2 = Util.enterAnimal("I give up. What animal do you have in mind?");
+                    enterFact(animal2);
+                    return true;
+                } else if (current.yes.animal != null) {
+    //                System.out.println(askAboutAnimal(current.yes.animal));
+                    current = current.yes;
+                    return false;
+                } else {
+                    // next question
+    //                System.out.println(askQuestion(current.yes.fact));
+                    current = current.yes;
+                    return false;
+                }
+            } else {
+                System.err.println(current.no);
+                if (current.no == null) {
+                    Animal animal2 = Util.enterAnimal("I give up. What animal do you have in mind?");
+                    enterFact(animal2);
+                    return true;
+                } else if (current.no.animal != null) {
+    //                System.out.println(askAboutAnimal(current.no.animal));
+                    current = current.no;
+                    return false;
+                } else {
+                    // next question
+    //                System.out.println(askQuestion(current.no.fact));
+                    current = current.no;
+                    return false;
+                }
+            }
+        }
+
+        public void startGame() {
+            System.err.println("Start new game");
+            current = root;
+            if (current == null) {
+                System.err.println("empty tree");
+            } else if (current.fact != null) {
+                System.err.println("fact: " + current.fact);
+            } else if (current.animal != null) {
+                System.err.println("animal: " + current.animal.name);
+            }
+        }
+
+        public String getQuestion() {
+            String result = "";
+            if (current.yes == null) {
+                result = askAboutAnimal(current.animal);
+            } else {
+                result = askQuestion(current.fact);
+            }
+            return result;
+        }
+
+        private String askQuestion(String fact) {
+            return fact;
+        }
+
+        private String askAboutAnimal(Animal animal) {
+            return "Is it " + animal.article + " " + animal.name + "?";
+        }
+
+        public void insertFactAndNewAnimal(String fact, Animal secondAnimal, boolean isTrue) {
+            Node newFact = new Node(fact, current.parent);
+            if (isTrue) {
+                newFact.yes = new Node(secondAnimal, newFact);
+                newFact.no = current;
+            } else {
+                newFact.no = new Node(secondAnimal, newFact);
+                newFact.yes = current;
+            }
+            if (current.parent == null) {
+                root = newFact;
+            } else {
+                if (current.parent.yes == current) {
+                    current.parent.yes = newFact;
+                } else {
+                    current.parent.no = newFact;
+                }
+            }
+            current.parent = newFact;
+        }
+
+        public void insertAnimal(Animal animal) {
+            root = new Node(animal, null);
+        }
+
+
+    }
+  learner_created: true
+- name: test/file-formats.data.yaml
+  visible: false
+  text: |-
+    ---
+    - - json
+    - - xml
+    - - yaml
+  learner_created: false
 - name: test/file-formats.script.yaml
   visible: false
   text: |+
@@ -490,29 +838,43 @@ files:
       - "The test can't delete animals.{0} file."
 
   learner_created: false
-- name: test/positive-answers.script.yaml
-  visible: false
-  text: |+
-    #
-    # This is a script to test the correct interpretation of negative responses.
-    #
-    ---
-    - [start]
-    - [input, cat]
-    - [input, ""]   # Press Enter to start the game
-    #
-    # The game started
-    #
-    - [contains, "Is it a cat?", "The program should ask: \"Is it a cat?\""]
-    #
-    # Here we substitute all values from the data file
-    #
-    - [input, "{0}"]
-    - - not contains
-      - "yes or no"
-      - "The answer \"{0}\" should be treated as correct positive."
-
-  learner_created: false
+- name: animals.json
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/132/stages/706/implement#comment
-status: Unchecked
+status: Failed
+feedback:
+  message: "Wrong answer in test #5\n\nIf knowledge base is exist the program should\
+    \ not asks the user for a favourite animal\r\nExpected not contains: &quot;Which\
+    \ animal do you like most?&quot;\r\nActual data is: &quot;Good afternoon\nI want\
+    \ to learn about animals.\nWhich animal do you like most?&quot;.\n\nPlease find\
+    \ below the output of your program during this failed test.\nNote that the &#39;&gt;&#39;\
+    \ character indicates the beginning of the input line.\n\n---\n\nArguments for\
+    \ Main: -type json\nArguments for Main: -type json\n\nstdout:\nScenario &#39;file-formats&#39;\
+    \ is started.\n\nGood afternoon\nI want to learn about animals.\nWhich animal\
+    \ do you like most?\n&gt; cat\nWonderful! I&#39;ve learned so much about animals!\n\
+    Let&#39;s play a game!\nYou think of an animal, and I guess it.\nPress enter when\
+    \ you&#39;re ready.\n&gt; \nIs it a cat?\n&gt; no\nI give up. What animal do you\
+    \ have in mind?\n&gt; dog\nSpecify a fact that distinguishes a cat from a dog.\n\
+    The sentence should be of the format: &#39;It can/has/is ...&#39;.\n&gt; It can\
+    \ climbs tree\nIs the statement correct for a dog?\n&gt; No\nI learned the following\
+    \ facts about animals:\n- The cat can climbs tree.\n- The dog can&#39;t climbs\
+    \ tree.\nI can distinguish these animals by asking the question:\n- Can it climbs\
+    \ tree?\nNice! I&#39;ve learned so much about animals!\nWould you like to play\
+    \ again?\n&gt; Yes\nLet&#39;s play a game!\nYou think of an animal, and I guess\
+    \ it.\nPress enter when you&#39;re ready.\n&gt; \nCan it climbs tree?\n&gt; Yes\n\
+    Is it a cat?\n&gt; No\nI give up. What animal do you have in mind?\n&gt; a lynx\n\
+    Specify a fact that distinguishes a cat from a lynx.\nThe sentence should be of\
+    \ the format: &#39;It can/has/is ...&#39;.\n&gt; It is living in the forest\n\
+    Is the statement correct for a lynx?\n&gt; Yes\nI learned the following facts\
+    \ about animals:\n- The cat isn&#39;t living in the forest.\n- The lynx is living\
+    \ in the forest.\nI can distinguish these animals by asking the question:\n- Is\
+    \ it living in the forest?\nNice! I&#39;ve learned so much about animals!\nWould\
+    \ you like to play again?\n&gt; No\nПока\nGood afternoon\nI want to learn about\
+    \ animals.\nWhich animal do you like most?\n\nstderr:\nStart new game\nanimal:\
+    \ cat\nfact=&#39;null&#39;, animal=Animal{&#39;a cat&#39;} -&gt; No\nnull\nStart\
+    \ new game\nfact: Can it climbs tree?\nfact=&#39;Can it climbs tree?&#39;, animal=null\
+    \ -&gt; Yes\nfact=&#39;null&#39;, animal=Animal{&#39;a cat&#39;}\nfact=&#39;null&#39;,\
+    \ animal=Animal{&#39;a cat&#39;} -&gt; No\nnull\nSaving file animals.json"
+  time: Sun, 22 Aug 2021 08:08:19 UTC
 record: -1

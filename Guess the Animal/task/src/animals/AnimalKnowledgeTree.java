@@ -1,26 +1,46 @@
 package animals;
 
 
-import animals.Animal;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import utils.Util;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+
 public class AnimalKnowledgeTree {
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     static class Node {
-        String fact;
-        Animal animal;
-        Node parent;
-        Node yes;
-        Node no;
+        public String fact;
+        public Animal animal;
+        @JsonIgnore
+        public Node parent;
+        public Node yes;
+        public Node no;
+
+        public Node() { }
+
+        public Node(String fact, Animal animal, Node parent, Node yes, Node no) {
+            this.fact = fact;
+            this.animal = animal;
+            this.parent = parent;
+            this.yes = yes;
+            this.no = no;
+        }
 
         public Node(String fact, Node parent) {
             this.parent = parent;
             this.fact = fact;
             this.animal = null;
         }
+
         public Node(Animal animal, Node parent) {
             this.parent = parent;
             this.fact = null;
@@ -36,11 +56,21 @@ public class AnimalKnowledgeTree {
     Node root;
     Node current;
 
+    public void saveFile() throws IOException {
+        String fileName = "animals.json";
+        System.err.println("Saving file " + fileName);
+        ObjectMapper objectMapper = new JsonMapper();
+        objectMapper
+                .writerWithDefaultPrettyPrinter()
+                .writeValue(new File(fileName), root);
+    }
+
     void enterFact(Animal animal2) {
         Scanner scanner = new Scanner(System.in);
-        String result = "";
+        String result;
         Animal animal1 = current.animal;
         while (true) {
+            assert animal1 != null;
             System.out.println("Specify a fact that distinguishes " +
                     animal1.nameWithArticle() + " from " + animal2.nameWithArticle() + ".\n" +
                     "The sentence should be of the format: 'It can/has/is ...'.");
@@ -50,10 +80,8 @@ public class AnimalKnowledgeTree {
             if (matcher.matches()) {
                 String verb = matcher.group(1);
                 String fact = matcher.group(2);
-                if (verb.equals("has") || verb.equals("is")) {
-//                    fact = getArticle(fact);
-                }
-                String answer = Util.getAnswer("Is it correct for " + animal2.nameWithArticle() + "?");
+
+                String answer = Util.getAnswer("Is the statement correct for " + animal2.nameWithArticle() + "?");
                 verb = Util.question(verb);
                 result = verb.substring(0, 1).toUpperCase() + verb.substring(1) + " it " + (verb.equals("does") ? "have " : "") + fact + "?";
                 System.out.println("I learned the following facts about animals:");
@@ -133,8 +161,9 @@ public class AnimalKnowledgeTree {
     }
 
     public String getQuestion() {
-        String result = "";
+        String result;
         if (current.yes == null) {
+            assert current.animal != null;
             result = askAboutAnimal(current.animal);
         } else {
             result = askQuestion(current.fact);
@@ -175,5 +204,20 @@ public class AnimalKnowledgeTree {
         root = new Node(animal, null);
     }
 
+    public static void main(String[] args) throws IOException {
+        AnimalKnowledgeTree tree = new AnimalKnowledgeTree();
+        Node root = new Node("fact", null, null, null, null);
+        tree.root = root;
+//        root = new Node();
+        tree.root.yes = new Node(new Animal("a", "cat"), tree.root);
+        tree.root.no = new Node("another fact", tree.root);
+        tree.root.no.yes = new Node(new Animal("a", "doggy"), tree.root.no);
+        tree.root.no.no = new Node(new Animal("a", "batty"), tree.root.no);
+        String fileName = "AnimalKnowledgeTree.json";
+        ObjectMapper objectMapper = new JsonMapper();
 
+        objectMapper
+                .writerWithDefaultPrettyPrinter()
+                .writeValue(new File(fileName), tree.root);
+    }
 }

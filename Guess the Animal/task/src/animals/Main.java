@@ -2,12 +2,13 @@ package animals;
 
 import utils.Util;
 
+import java.io.IOException;
 import java.util.*;
 
 public class Main {
     static final Scanner scanner = new Scanner(System.in);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         AnimalKnowledgeTree tree = new AnimalKnowledgeTree();
         Util.greetings();
         System.out.println("I want to learn about animals.");
@@ -29,7 +30,7 @@ public class Main {
                 break;
             }
         }
-
+        tree.saveFile();
         Util.bye();
     }
 
