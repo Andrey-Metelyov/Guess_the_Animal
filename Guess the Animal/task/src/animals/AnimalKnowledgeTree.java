@@ -22,7 +22,7 @@ public class AnimalKnowledgeTree {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     static class Node {
-        public String fact;
+        public Fact fact;
         public Animal animal;
         @JsonIgnore
         public Node parent;
@@ -31,7 +31,7 @@ public class AnimalKnowledgeTree {
 
         public Node() { }
 
-        public Node(String fact, Animal animal, Node parent, Node yes, Node no) {
+        public Node(Fact fact, Animal animal, Node parent, Node yes, Node no) {
             this.fact = fact;
             this.animal = animal;
             this.parent = parent;
@@ -39,7 +39,7 @@ public class AnimalKnowledgeTree {
             this.no = no;
         }
 
-        public Node(String fact, Node parent) {
+        public Node(Fact fact, Node parent) {
             this.parent = parent;
             this.fact = fact;
             this.animal = null;
@@ -61,11 +61,13 @@ public class AnimalKnowledgeTree {
     Node current;
 
     public List<String> searchFacts(String animal) {
+        List<Fact> facts = new ArrayList<>();
         List<String> result = new ArrayList<>();
         Node n = search(root, animal);
         while (n.parent != null) {
             if (n.parent.fact != null) {
-                result.add(n.parent.fact);
+                facts.add(n.parent.fact);
+                result.add(n.parent.fact.formatFact(null, n.parent.yes == n));
             }
             n = n.parent;
         }
@@ -122,7 +124,7 @@ public class AnimalKnowledgeTree {
         try {
             root = objectMapper.readValue(new File(file), Node.class);
         } catch (IOException e) {
-//            e.printStackTrace();
+            e.printStackTrace();
         }
     }
 
@@ -146,7 +148,6 @@ public class AnimalKnowledgeTree {
 
     void enterFact(Animal animal2) {
         Scanner scanner = new Scanner(System.in);
-        String result;
         Animal animal1 = current.animal;
         while (true) {
             assert animal1 != null;
@@ -159,23 +160,22 @@ public class AnimalKnowledgeTree {
             if (matcher.matches()) {
                 String verb = matcher.group(1);
                 String fact = matcher.group(2);
-
                 String answer = Util.getAnswer("Is the statement correct for " + animal2.nameWithArticle() + "?");
-                verb = Util.question(verb);
-                result = verb.substring(0, 1).toUpperCase() + verb.substring(1) + " it " + (verb.equals("does") ? "have " : "") + fact + "?";
+//                verb = Util.question(verb);
+                Fact result = new Fact(verb, fact);
                 System.out.println("I learned the following facts about animals:");
                 if (answer.equals("Yes")) {
-                    System.out.println("- The " + animal1.name + " " + Util.negative(verb) + " " + fact + ".");
-                    System.out.println("- The " + animal2.name + " " + verb + " " + fact + ".");
+                    System.out.println(result.formatFact(animal2, true));
+                    System.out.println(result.formatFact(animal1, false));
                 } else {
-                    System.out.println("- The " + animal1.name + " " + verb + " " + fact + ".");
-                    System.out.println("- The " + animal2.name + " " + Util.negative(verb) + " " + fact + ".");
+                    System.out.println(result.formatFact(animal1, true));
+                    System.out.println(result.formatFact(animal2, false));
                 }
 
                 insertFactAndNewAnimal(result, animal2, answer.equals("Yes"));
 
                 System.out.println("I can distinguish these animals by asking the question:");
-                System.out.println("- " + result);
+                System.out.println("- " + result.formatQuestion());
                 System.out.println("Nice! I've learned so much about animals!");
                 break;
             } else {
@@ -245,7 +245,7 @@ public class AnimalKnowledgeTree {
             assert current.animal != null;
             result = askAboutAnimal(current.animal);
         } else {
-            result = askQuestion(current.fact);
+            result = askQuestion(current.fact.formatQuestion());
         }
         return result;
     }
@@ -258,7 +258,7 @@ public class AnimalKnowledgeTree {
         return "Is it " + animal.article + " " + animal.name + "?";
     }
 
-    public void insertFactAndNewAnimal(String fact, Animal secondAnimal, boolean isTrue) {
+    public void insertFactAndNewAnimal(Fact fact, Animal secondAnimal, boolean isTrue) {
         Node newFact = new Node(fact, current.parent);
         if (isTrue) {
             newFact.yes = new Node(secondAnimal, newFact);

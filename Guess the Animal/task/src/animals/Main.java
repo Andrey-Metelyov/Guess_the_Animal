@@ -17,6 +17,7 @@ public class Main {
                 type = args[1];
             }
         }
+        System.err.println("\n---------*---------*---------*---------*---------*---------*---------");
         System.err.println(Arrays.toString(args));
 
         tree.loadFromFile(type);

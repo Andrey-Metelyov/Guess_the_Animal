@@ -761,15 +761,16 @@ files:
       - "1"
       - "3"
   learner_created: false
+- name: src/animals/Fact.java
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/132/stages/707/implement#comment
 status: Failed
 feedback:
-  message: "Wrong answer in test #2\n\nThe program should print facts about the animal\r\
-    \nExpected matches: &quot;(?si).*is a mammal.*doesn&#39;t have a long bushy tail.*isn&#39;t\
-    \ a shy animal.*&quot;\r\nActual data is: &quot;- Is it a mammal?\n - Is it living\
-    \ in the forest?\n - Does it have a long bushy tail?\n - Is it a shy animal?\n\
-    \nWhat do you want to do:\n\n1. Play the guessing game\n2. List of all animals\n\
-    3. Search for an animal\n4. Calculate statistics\n5. Print the Knowledge Tree\n\
+  message: "Wrong answer in test #2\n\nThe program should print title for statistics\r\
+    \nExpected contains: &quot;The Knowledge Tree stats&quot;\r\nActual data is: &quot;What\
+    \ do you want to do:\n\n1. Play the guessing game\n2. List of all animals\n3.\
+    \ Search for an animal\n4. Calculate statistics\n5. Print the Knowledge Tree\n\
     0. Exit&quot;.\n\nPlease find below the output of your program during this failed\
     \ test.\nNote that the &#39;&gt;&#39; character indicates the beginning of the\
     \ input line.\n\n---\n\nstdout:\nScenario &#39;menu&#39; is started.\n\nGood evening\n\
@@ -781,73 +782,118 @@ feedback:
     \ up. What animal do you have in mind?\n&gt; shark\nSpecify a fact that distinguishes\
     \ a cat from a shark.\nThe sentence should be of the format: &#39;It can/has/is\
     \ ...&#39;.\n&gt; it is a mammal\nIs the statement correct for a shark?\n&gt;\
-    \ no\nI learned the following facts about animals:\n- The cat is a mammal.\n-\
-    \ The shark isn&#39;t a mammal.\nI can distinguish these animals by asking the\
-    \ question:\n- Is it a mammal?\nNice! I&#39;ve learned so much about animals!\n\
-    Would you like to play again?\n&gt; yes\nYou think of an animal, and I guess it.\n\
-    Press enter when you&#39;re ready.\n&gt; \nIs it a mammal?\n&gt; yes\nIs it a\
-    \ cat?\n&gt; no\nI give up. What animal do you have in mind?\n&gt; fox\nSpecify\
-    \ a fact that distinguishes a cat from a fox.\nThe sentence should be of the format:\
-    \ &#39;It can/has/is ...&#39;.\n&gt; it is living in the forest\nIs the statement\
-    \ correct for a fox?\n&gt; yes\nI learned the following facts about animals:\n\
-    - The cat isn&#39;t living in the forest.\n- The fox is living in the forest.\n\
-    I can distinguish these animals by asking the question:\n- Is it living in the\
-    \ forest?\nNice! I&#39;ve learned so much about animals!\nWould you like to play\
-    \ again?\n&gt; yes\nYou think of an animal, and I guess it.\nPress enter when\
-    \ you&#39;re ready.\n&gt; \nIs it a mammal?\n&gt; yes\nIs it living in the forest?\n\
-    &gt; no\nIs it a cat?\n&gt; no\nI give up. What animal do you have in mind?\n\
-    &gt; dog\nSpecify a fact that distinguishes a cat from a dog.\nThe sentence should\
-    \ be of the format: &#39;It can/has/is ...&#39;.\n&gt; it can climb trees\nIs\
-    \ the statement correct for a dog?\n&gt; no\nI learned the following facts about\
-    \ animals:\n- The cat can climb trees.\n- The dog can&#39;t climb trees.\nI can\
-    \ distinguish these animals by asking the question:\n- Can it climb trees?\nNice!\
+    \ no\nI learned the following facts about animals:\nThe cat is a mammal.\nThe\
+    \ shark isn&#39;t a mammal.\nI can distinguish these animals by asking the question:\n\
+    - Is it a mammal?\nNice! I&#39;ve learned so much about animals!\nWould you like\
+    \ to play again?\n&gt; yes\nYou think of an animal, and I guess it.\nPress enter\
+    \ when you&#39;re ready.\n&gt; \nIs it a mammal?\n&gt; yes\nIs it a cat?\n&gt;\
+    \ no\nI give up. What animal do you have in mind?\n&gt; fox\nSpecify a fact that\
+    \ distinguishes a cat from a fox.\nThe sentence should be of the format: &#39;It\
+    \ can/has/is ...&#39;.\n&gt; it is living in the forest\nIs the statement correct\
+    \ for a fox?\n&gt; yes\nI learned the following facts about animals:\nThe fox\
+    \ is living in the forest.\nThe cat isn&#39;t living in the forest.\nI can distinguish\
+    \ these animals by asking the question:\n- Is it living in the forest?\nNice!\
     \ I&#39;ve learned so much about animals!\nWould you like to play again?\n&gt;\
     \ yes\nYou think of an animal, and I guess it.\nPress enter when you&#39;re ready.\n\
-    &gt; \nIs it a mammal?\n&gt; yes\nIs it living in the forest?\n&gt; yes\nIs it\
-    \ a fox?\n&gt; no\nI give up. What animal do you have in mind?\n&gt; wolf\nSpecify\
-    \ a fact that distinguishes a fox from a wolf.\nThe sentence should be of the\
-    \ format: &#39;It can/has/is ...&#39;.\n&gt; it has a long bushy tail\nIs the\
-    \ statement correct for a wolf?\n&gt; no\nI learned the following facts about\
-    \ animals:\n- The fox does a long bushy tail.\n- The wolf isn&#39;t a long bushy\
-    \ tail.\nI can distinguish these animals by asking the question:\n- Does it have\
-    \ a long bushy tail?\nNice! I&#39;ve learned so much about animals!\nWould you\
-    \ like to play again?\n&gt; yes\nYou think of an animal, and I guess it.\nPress\
-    \ enter when you&#39;re ready.\n&gt; \nIs it a mammal?\n&gt; yes\nIs it living\
-    \ in the forest?\n&gt; yes\nDoes it have a long bushy tail?\n&gt; no\nIs it a\
-    \ wolf?\n&gt; no\nI give up. What animal do you have in mind?\n&gt; hare\nSpecify\
-    \ a fact that distinguishes a wolf from a hare.\nThe sentence should be of the\
-    \ format: &#39;It can/has/is ...&#39;.\n&gt; it is a shy animal\nIs the statement\
-    \ correct for a hare?\n&gt; yes\nI learned the following facts about animals:\n\
-    - The wolf isn&#39;t a shy animal.\n- The hare is a shy animal.\nI can distinguish\
-    \ these animals by asking the question:\n- Is it a shy animal?\nNice! I&#39;ve\
-    \ learned so much about animals!\nWould you like to play again?\n&gt; no\nWhat\
-    \ do you want to do:\n\n1. Play the guessing game\n2. List of all animals\n3.\
-    \ Search for an animal\n4. Calculate statistics\n5. Print the Knowledge Tree\n\
-    0. Exit\n&gt; 2\nHere are the animals I know:\n - cat\n - dog\n - fox\n - hare\n\
-    \ - shark\n - wolf\n\nWhat do you want to do:\n\n1. Play the guessing game\n2.\
-    \ List of all animals\n3. Search for an animal\n4. Calculate statistics\n5. Print\
-    \ the Knowledge Tree\n0. Exit\n&gt; 3\nEnter the animal:\n&gt; wolf\n - Is it\
-    \ a mammal?\n - Is it living in the forest?\n - Does it have a long bushy tail?\n\
-    \ - Is it a shy animal?\n\nWhat do you want to do:\n\n1. Play the guessing game\n\
+    &gt; \nIs it a mammal?\n&gt; yes\nIs it living in the forest?\n&gt; no\nIs it\
+    \ a cat?\n&gt; no\nI give up. What animal do you have in mind?\n&gt; dog\nSpecify\
+    \ a fact that distinguishes a cat from a dog.\nThe sentence should be of the format:\
+    \ &#39;It can/has/is ...&#39;.\n&gt; it can climb trees\nIs the statement correct\
+    \ for a dog?\n&gt; no\nI learned the following facts about animals:\nThe cat can\
+    \ climb trees.\nThe dog can&#39;t climb trees.\nI can distinguish these animals\
+    \ by asking the question:\n- Can it climb trees?\nNice! I&#39;ve learned so much\
+    \ about animals!\nWould you like to play again?\n&gt; yes\nYou think of an animal,\
+    \ and I guess it.\nPress enter when you&#39;re ready.\n&gt; \nIs it a mammal?\n\
+    &gt; yes\nIs it living in the forest?\n&gt; yes\nIs it a fox?\n&gt; no\nI give\
+    \ up. What animal do you have in mind?\n&gt; wolf\nSpecify a fact that distinguishes\
+    \ a fox from a wolf.\nThe sentence should be of the format: &#39;It can/has/is\
+    \ ...&#39;.\n&gt; it has a long bushy tail\nIs the statement correct for a wolf?\n\
+    &gt; no\nI learned the following facts about animals:\nThe fox has a long bushy\
+    \ tail.\nThe wolf doesn&#39;t have a long bushy tail.\nI can distinguish these\
+    \ animals by asking the question:\n- Has it a long bushy tail?\nNice! I&#39;ve\
+    \ learned so much about animals!\nWould you like to play again?\n&gt; yes\nYou\
+    \ think of an animal, and I guess it.\nPress enter when you&#39;re ready.\n&gt;\
+    \ \nIs it a mammal?\n&gt; yes\nIs it living in the forest?\n&gt; yes\nHas it a\
+    \ long bushy tail?\n&gt; no\nIs it a wolf?\n&gt; no\nI give up. What animal do\
+    \ you have in mind?\n&gt; hare\nSpecify a fact that distinguishes a wolf from\
+    \ a hare.\nThe sentence should be of the format: &#39;It can/has/is ...&#39;.\n\
+    &gt; it is a shy animal\nIs the statement correct for a hare?\n&gt; yes\nI learned\
+    \ the following facts about animals:\nThe hare is a shy animal.\nThe wolf isn&#39;t\
+    \ a shy animal.\nI can distinguish these animals by asking the question:\n- Is\
+    \ it a shy animal?\nNice! I&#39;ve learned so much about animals!\nWould you like\
+    \ to play again?\n&gt; no\nWhat do you want to do:\n\n1. Play the guessing game\n\
     2. List of all animals\n3. Search for an animal\n4. Calculate statistics\n5. Print\
-    \ the Knowledge Tree\n0. Exit\n\nstderr:\n[]\nloadFromFile animals.json\nStart\
-    \ new game\nanimal: cat\nfact=&#39;null&#39;, animal=Animal{&#39;a cat&#39;} -&gt;\
-    \ No\nnull\nStart new game\nfact: Is it a mammal?\nfact=&#39;Is it a mammal?&#39;,\
+    \ the Knowledge Tree\n0. Exit\n&gt; 2\nHere are the animals I know:\n - cat\n\
+    \ - dog\n - fox\n - hare\n - shark\n - wolf\n\nWhat do you want to do:\n\n1. Play\
+    \ the guessing game\n2. List of all animals\n3. Search for an animal\n4. Calculate\
+    \ statistics\n5. Print the Knowledge Tree\n0. Exit\n&gt; 3\nEnter the animal:\n\
+    &gt; wolf\n - It is a mammal.\n - It is living in the forest.\n - It doesn&#39;t\
+    \ have a long bushy tail.\n - It isn&#39;t a shy animal.\n\nWhat do you want to\
+    \ do:\n\n1. Play the guessing game\n2. List of all animals\n3. Search for an animal\n\
+    4. Calculate statistics\n5. Print the Knowledge Tree\n0. Exit\n&gt; 4\nWhat do\
+    \ you want to do:\n\n1. Play the guessing game\n2. List of all animals\n3. Search\
+    \ for an animal\n4. Calculate statistics\n5. Print the Knowledge Tree\n0. Exit\n\
+    \nstderr:\n---------*---------*---------*---------*---------*---------*---------\n\
+    []\nloadFromFile animals.json\njava.io.FileNotFoundException: animals.json (Не\
+    \ удается найти указанный файл)\n\tat java.base/java.io.FileInputStream.open0(Native\
+    \ Method)\n\tat java.base/java.io.FileInputStream.open(FileInputStream.java:219)\n\
+    \tat java.base/java.io.FileInputStream.&lt;init&gt;(FileInputStream.java:157)\n\
+    \tat com.fasterxml.jackson.core.JsonFactory.createParser(JsonFactory.java:916)\n\
+    \tat com.fasterxml.jackson.databind.ObjectMapper.readValue(ObjectMapper.java:3331)\n\
+    \tat animals.AnimalKnowledgeTree.loadFromFile(AnimalKnowledgeTree.java:125)\n\t\
+    at animals.Main.main(Main.java:23)\n\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native\
+    \ Method)\n\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n\
+    \tat java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\
+    \tat java.base/java.lang.reflect.Method.invoke(Method.java:566)\n\tat org.hyperskill.hstest.testing.execution.MainMethodExecutor.invokeMain(MainMethodExecutor.java:173)\n\
+    \tat org.hyperskill.hstest.testing.execution.MainMethodExecutor.lambda$launch$0(MainMethodExecutor.java:200)\n\
+    \tat java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)\n\
+    \tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat\
+    \ java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\n\
+    \tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\n\
+    \tat java.base/java.lang.Thread.run(Thread.java:829)\nStart new game\nanimal:\
+    \ cat\nfact=&#39;null&#39;, animal=Animal{&#39;a cat&#39;} -&gt; No\nnull\nAnimal{&#39;a\
+    \ cat&#39;} true (Fact{verb=&#39;is&#39;, fact=&#39;a mammal&#39;}) -&gt; The\
+    \ cat is a mammal.\nAnimal{&#39;a shark&#39;} false (Fact{verb=&#39;is&#39;, fact=&#39;a\
+    \ mammal&#39;}) -&gt; The shark isn&#39;t a mammal.\nStart new game\nfact: Fact{verb=&#39;is&#39;,\
+    \ fact=&#39;a mammal&#39;}\nfact=&#39;Fact{verb=&#39;is&#39;, fact=&#39;a mammal&#39;}&#39;,\
     \ animal=null -&gt; Yes\nfact=&#39;null&#39;, animal=Animal{&#39;a cat&#39;}\n\
-    fact=&#39;null&#39;, animal=Animal{&#39;a cat&#39;} -&gt; No\nnull\nStart new\
-    \ game\nfact: Is it a mammal?\nfact=&#39;Is it a mammal?&#39;, animal=null -&gt;\
-    \ Yes\nfact=&#39;Is it living in the forest?&#39;, animal=null\nfact=&#39;Is it\
-    \ living in the forest?&#39;, animal=null -&gt; No\nfact=&#39;null&#39;, animal=Animal{&#39;a\
-    \ cat&#39;}\nfact=&#39;null&#39;, animal=Animal{&#39;a cat&#39;} -&gt; No\nnull\n\
-    Start new game\nfact: Is it a mammal?\nfact=&#39;Is it a mammal?&#39;, animal=null\
-    \ -&gt; Yes\nfact=&#39;Is it living in the forest?&#39;, animal=null\nfact=&#39;Is\
-    \ it living in the forest?&#39;, animal=null -&gt; Yes\nfact=&#39;null&#39;, animal=Animal{&#39;a\
-    \ fox&#39;}\nfact=&#39;null&#39;, animal=Animal{&#39;a fox&#39;} -&gt; No\nnull\n\
-    Start new game\nfact: Is it a mammal?\nfact=&#39;Is it a mammal?&#39;, animal=null\
-    \ -&gt; Yes\nfact=&#39;Is it living in the forest?&#39;, animal=null\nfact=&#39;Is\
-    \ it living in the forest?&#39;, animal=null -&gt; Yes\nfact=&#39;Does it have\
-    \ a long bushy tail?&#39;, animal=null\nfact=&#39;Does it have a long bushy tail?&#39;,\
-    \ animal=null -&gt; No\nfact=&#39;null&#39;, animal=Animal{&#39;a wolf&#39;}\n\
-    fact=&#39;null&#39;, animal=Animal{&#39;a wolf&#39;} -&gt; No\nnull"
-  time: Sun, 22 Aug 2021 15:14:02 UTC
+    fact=&#39;null&#39;, animal=Animal{&#39;a cat&#39;} -&gt; No\nnull\nAnimal{&#39;a\
+    \ fox&#39;} true (Fact{verb=&#39;is&#39;, fact=&#39;living in the forest&#39;})\
+    \ -&gt; The fox is living in the forest.\nAnimal{&#39;a cat&#39;} false (Fact{verb=&#39;is&#39;,\
+    \ fact=&#39;living in the forest&#39;}) -&gt; The cat isn&#39;t living in the\
+    \ forest.\nStart new game\nfact: Fact{verb=&#39;is&#39;, fact=&#39;a mammal&#39;}\n\
+    fact=&#39;Fact{verb=&#39;is&#39;, fact=&#39;a mammal&#39;}&#39;, animal=null -&gt;\
+    \ Yes\nfact=&#39;Fact{verb=&#39;is&#39;, fact=&#39;living in the forest&#39;}&#39;,\
+    \ animal=null\nfact=&#39;Fact{verb=&#39;is&#39;, fact=&#39;living in the forest&#39;}&#39;,\
+    \ animal=null -&gt; No\nfact=&#39;null&#39;, animal=Animal{&#39;a cat&#39;}\n\
+    fact=&#39;null&#39;, animal=Animal{&#39;a cat&#39;} -&gt; No\nnull\nAnimal{&#39;a\
+    \ cat&#39;} true (Fact{verb=&#39;can&#39;, fact=&#39;climb trees&#39;}) -&gt;\
+    \ The cat can climb trees.\nAnimal{&#39;a dog&#39;} false (Fact{verb=&#39;can&#39;,\
+    \ fact=&#39;climb trees&#39;}) -&gt; The dog can&#39;t climb trees.\nStart new\
+    \ game\nfact: Fact{verb=&#39;is&#39;, fact=&#39;a mammal&#39;}\nfact=&#39;Fact{verb=&#39;is&#39;,\
+    \ fact=&#39;a mammal&#39;}&#39;, animal=null -&gt; Yes\nfact=&#39;Fact{verb=&#39;is&#39;,\
+    \ fact=&#39;living in the forest&#39;}&#39;, animal=null\nfact=&#39;Fact{verb=&#39;is&#39;,\
+    \ fact=&#39;living in the forest&#39;}&#39;, animal=null -&gt; Yes\nfact=&#39;null&#39;,\
+    \ animal=Animal{&#39;a fox&#39;}\nfact=&#39;null&#39;, animal=Animal{&#39;a fox&#39;}\
+    \ -&gt; No\nnull\nAnimal{&#39;a fox&#39;} true (Fact{verb=&#39;has&#39;, fact=&#39;a\
+    \ long bushy tail&#39;}) -&gt; The fox has a long bushy tail.\nAnimal{&#39;a wolf&#39;}\
+    \ false (Fact{verb=&#39;has&#39;, fact=&#39;a long bushy tail&#39;}) -&gt; The\
+    \ wolf doesn&#39;t have a long bushy tail.\nStart new game\nfact: Fact{verb=&#39;is&#39;,\
+    \ fact=&#39;a mammal&#39;}\nfact=&#39;Fact{verb=&#39;is&#39;, fact=&#39;a mammal&#39;}&#39;,\
+    \ animal=null -&gt; Yes\nfact=&#39;Fact{verb=&#39;is&#39;, fact=&#39;living in\
+    \ the forest&#39;}&#39;, animal=null\nfact=&#39;Fact{verb=&#39;is&#39;, fact=&#39;living\
+    \ in the forest&#39;}&#39;, animal=null -&gt; Yes\nfact=&#39;Fact{verb=&#39;has&#39;,\
+    \ fact=&#39;a long bushy tail&#39;}&#39;, animal=null\nfact=&#39;Fact{verb=&#39;has&#39;,\
+    \ fact=&#39;a long bushy tail&#39;}&#39;, animal=null -&gt; No\nfact=&#39;null&#39;,\
+    \ animal=Animal{&#39;a wolf&#39;}\nfact=&#39;null&#39;, animal=Animal{&#39;a wolf&#39;}\
+    \ -&gt; No\nnull\nAnimal{&#39;a hare&#39;} true (Fact{verb=&#39;is&#39;, fact=&#39;a\
+    \ shy animal&#39;}) -&gt; The hare is a shy animal.\nAnimal{&#39;a wolf&#39;}\
+    \ false (Fact{verb=&#39;is&#39;, fact=&#39;a shy animal&#39;}) -&gt; The wolf\
+    \ isn&#39;t a shy animal.\nnull false (Fact{verb=&#39;is&#39;, fact=&#39;a shy\
+    \ animal&#39;}) -&gt; It isn&#39;t a shy animal.\nnull false (Fact{verb=&#39;has&#39;,\
+    \ fact=&#39;a long bushy tail&#39;}) -&gt; It doesn&#39;t have a long bushy tail.\n\
+    null true (Fact{verb=&#39;is&#39;, fact=&#39;living in the forest&#39;}) -&gt;\
+    \ It is living in the forest.\nnull true (Fact{verb=&#39;is&#39;, fact=&#39;a\
+    \ mammal&#39;}) -&gt; It is a mammal."
+  time: Mon, 23 Aug 2021 09:38:37 UTC
 record: -1
