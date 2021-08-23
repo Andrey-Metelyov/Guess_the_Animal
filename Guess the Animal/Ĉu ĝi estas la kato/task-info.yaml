@@ -9,7 +9,889 @@ files:
     public class Main {
     }
   learner_created: false
+- name: test/GuessAnimalTest.java
+  visible: false
+  text: |-
+    import org.hyperskill.hstest.dynamic.DynamicTest;
+    import org.hyperskill.hstest.stage.StageTest;
+    import org.hyperskill.hstest.testcase.CheckResult;
+
+    import java.io.File;
+    import java.io.IOException;
+    import java.util.Locale;
+    import java.util.stream.Stream;
+
+    public class GuessAnimalTest extends StageTest<String> {
+
+        String[] languages = new String[]{"en", "eo"};
+
+        @DynamicTest(data = "languages")
+        CheckResult testLanguages(final String language) throws IOException {
+            final var fileName = "animals" + ("en".equals(language) ? "." : "_" + language + ".");
+
+            final var locale = Locale.getDefault();
+            final var systemLanguage = System.getProperty("user.language");
+            Locale.setDefault(new Locale(language));
+            System.setProperty("user.language", language);
+
+            deleteFiles(fileName);
+            final var result = new Scenario(language).check();
+            deleteFiles(fileName);
+
+            Locale.setDefault(locale);
+            System.setProperty("user.language", systemLanguage);
+
+            return result;
+        }
+
+        private void deleteFiles(String fileName) {
+            Stream.of("yaml", "json", "xml")
+                    .map(fileName::concat)
+                    .map(File::new)
+                    .filter(File::exists)
+                    .forEach(File::delete);
+        }
+    }
+  learner_created: false
+- name: test/Scenario.java
+  visible: false
+  text: |-
+    import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+    import org.hyperskill.hstest.testcase.CheckResult;
+    import org.hyperskill.hstest.testing.TestedProgram;
+
+    import java.io.File;
+    import java.io.IOException;
+    import java.util.Map;
+    import java.util.function.Predicate;
+    import java.util.regex.Pattern;
+
+    import static java.text.MessageFormat.format;
+    import static java.util.function.Predicate.not;
+    import static org.hyperskill.hstest.testcase.CheckResult.correct;
+    import static org.hyperskill.hstest.testcase.CheckResult.wrong;
+
+    public class Scenario {
+        private TestedProgram main;
+        private String output = "";
+        private final File dataFile;
+        private final File scriptFile;
+
+        Scenario(String name) {
+            dataFile = new File("test/" + name + ".data.yaml");
+            scriptFile = new File("test/" + name + ".script.yaml");
+            System.out.println("Scenario '" + name + "' is started.");
+            System.out.println();
+        }
+
+        CheckResult check() {
+
+            final Object[][] data;
+            final String[][] script;
+
+            try {
+                data = new YAMLMapper().readValue(dataFile, String[][].class);
+                script = new YAMLMapper().readValue(scriptFile, String[][].class);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return wrong("Cannot find the files "
+                        + dataFile.getName()
+                        + " or "
+                        + scriptFile.getName()
+                        + ", looks like you deleted or renamed it. Please, revert the changes.");
+            }
+
+            for (var values : data) {
+                for (var action : script) {
+                    final var command = action[0];
+                    switch (command) {
+                        case "start":
+                            main = new TestedProgram();
+                            output = action.length == 1
+                                    ? main.start()
+                                    : main.start(format(action[1], values).split(" "));
+                            output = output.trim().toLowerCase();
+                            continue;
+                        case "input":
+                            output = main.execute(format(action[1], values)).trim().toLowerCase();
+                            continue;
+                        case "finish":
+                            if (main.isFinished()) {
+                                continue;
+                            }
+                            return wrong(format(action[1], values));
+                        default:
+                            final Map<String, Predicate<String>> validation = Map.of(
+                                    "contains", output::contains,
+                                    "not contains", not(output::contains),
+                                    "file exists", file -> new File(file).exists(),
+                                    "file delete", file -> new File(file).delete(),
+                                    "find", pattern -> Pattern.compile(pattern).matcher(output).find(),
+                                    "matches", output::matches);
+
+                            final var expected = format(action[1], values);
+                            if (validation.get(command).test(expected)) {
+                                continue;
+                            }
+                            final var feedback = format(action[2], values) + System.lineSeparator()
+                                    + "Expected " + command + ": \"" + expected + "\"" + System.lineSeparator()
+                                    + "Actual data is: \"" + output + "\".";
+                            return wrong(feedback);
+                    }
+                }
+            }
+            return correct();
+        }
+
+    }
+  learner_created: false
+- name: src/animals/Animal.java
+  visible: true
+  text: |
+    package animals;
+
+    public class Animal {
+        public String article;
+        public String name;
+
+        public Animal() { }
+        public Animal(String article, String name) {
+            this.article = article;
+            this.name = name;
+        }
+
+        public String nameWithArticle() {
+            return article + " " + name;
+        }
+
+        @Override
+        public String toString() {
+            return "Animal{" + "'" + article + " " + name + "'}";
+        }
+
+    //    public static void main(String[] args) throws IOException {
+    //        Animal animal = new Animal("a", "cat");
+    //        String fileName = "animal.json";
+    //        ObjectMapper objectMapper = new JsonMapper();
+    //
+    //        objectMapper
+    //                .writerWithDefaultPrettyPrinter()
+    //                .writeValue(new File(fileName), animal);
+    //    }
+    }
+  learner_created: true
+- name: src/utils/Util.java
+  visible: true
+  text: |
+    package utils;
+
+    import animals.Animal;
+
+    import java.util.Arrays;
+    import java.util.Calendar;
+    import java.util.List;
+    import java.util.Scanner;
+
+    public class Util {
+        public static String getArticle(String word) {
+            String article;
+            if ("aoeiu".contains(word.substring(0, 1))) {
+                article = "an";
+            } else {
+                article = "a";
+            }
+            return article;
+        }
+
+        public static Animal enterAnimal(String prompt) {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println(prompt);
+            String[] input = scanner.nextLine().toLowerCase().split(" ", 2);
+            String animal;
+            String article;
+            if (input.length > 1) {
+                if (input[0].equals("a") || input[0].equals("an")) {
+                    article = input[0];
+                    animal = input[1];
+                } else if (input[0].equals("the")) {
+                    article = getArticle(input[1]);
+                    animal = input[1];
+                } else {
+                    article = getArticle(input[0]);
+                    animal = input[0] + " " + input[1];
+                }
+            } else {
+                article = getArticle(input[0]);
+                animal = input[0];
+            }
+            return new Animal(article, animal);
+        }
+
+        public static String getAnswer(String question) {
+            Scanner scanner = new Scanner(System.in);
+            List<String> positiveAnswers = Arrays.asList(
+                    "y", "yes", "yeah", "yep", "sure", "right",
+                    "affirmative", "correct", "indeed", "you bet",
+                    "exactly", "you said it");
+            List<String> negativeAnswers = Arrays.asList(
+                    "n", "no", "no way", "nah", "nope", "negative",
+                    "i don't think so", "yeah no"
+            );
+            String[] dontUnderstands = {
+                    "I'm not sure I caught you: was it yes or no?",
+                    "Funny, I still don't understand, is it yes or no?",
+                    "Oh, it's too complicated for me: just tell me yes or no.",
+                    "Could you please simply say yes or no?",
+                    "Oh, no, don't try to confuse me: say yes or no."
+            };
+            System.out.println(question);
+            while (true) {
+                String answer = scanner.nextLine()
+                        .trim()
+                        .toLowerCase()
+                        .replaceAll("[.!]$", "");
+                if (positiveAnswers.contains(answer)) {
+                    return "Yes";
+                } else if (negativeAnswers.contains(answer)) {
+                    return "No";
+                }
+                System.out.println(Util.getRandomLine(dontUnderstands));
+            }
+        }
+
+        public static String getRandomLine(String[] lines) {
+            return lines[(int) (Math.random() * lines.length)];
+        }
+
+        public static String question(String verb) {
+            if (verb.equals("has")) return "does";
+            return verb;
+        }
+
+        public static String negative(String verb) {
+            if (verb.equals("can")) return "can't";
+            if (verb.equals("has")) return "doesn't have";
+            return "isn't";
+        }
+
+        public static void greetings() {
+            Calendar calendar = Calendar.getInstance();
+            int hours = calendar.get(Calendar.HOUR_OF_DAY);
+            if (hours >= 5 && hours < 12) {
+                System.out.println("Good morning");
+            } else if (hours > 12 && hours < 18) {
+                System.out.println("Good afternoon");
+            } else {
+                System.out.println("Good evening");
+            }
+        }
+
+        public static void bye() {
+            String[] byes = {
+                    "Have a nice day!",
+                    "See you soon!",
+                    "Bye!",
+                    "Пока",
+                    "Aufwiedesein"
+            };
+            System.out.println(getRandomLine(byes));
+        }
+    }
+  learner_created: true
+- name: src/animals/Fact.java
+  visible: true
+  text: |
+    package animals;
+
+    import utils.Util;
+
+    public class Fact {
+        public String verb;
+        public String fact;
+
+        public Fact(String verb, String fact) {
+            this.verb = verb;
+            this.fact = fact;
+        }
+
+        @Override
+        public String toString() {
+            return "Fact{" +
+                    "verb='" + verb + '\'' +
+                    ", fact='" + fact + '\'' +
+                    '}';
+        }
+
+        public Fact() {
+
+        }
+
+        public String formatQuestion() {
+            return verb.substring(0, 1).toUpperCase() + verb.substring(1) + " it " + (verb.equals("does") ? "have " : "") + fact + "?";
+        }
+
+        public String formatFact(Animal animal, boolean isTrue) {
+            String result;
+            if (animal != null) {
+                result = "The " + animal.name + " " +
+                        (isTrue ? verb : Util.negative(verb)) + " " +
+                        (verb.equals("does") ? "have " : "") +
+                        fact + ".";
+            } else {
+                result = "It " +
+                        (isTrue ? verb : Util.negative(verb)) + " " +
+                        (verb.equals("does") ? "have " : "") +
+                        fact + ".";
+            }
+            System.err.println(animal + " " + isTrue + " (" + this + ") -> " + result);
+            return result;
+        }
+    }
+  learner_created: true
+- name: src/animals/AnimalKnowledgeTree.java
+  visible: true
+  text: |
+    package animals;
+
+
+    import com.fasterxml.jackson.annotation.JsonIgnore;
+    import com.fasterxml.jackson.annotation.JsonInclude;
+    import com.fasterxml.jackson.databind.ObjectMapper;
+    import com.fasterxml.jackson.databind.json.JsonMapper;
+    import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+    import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+    import utils.Util;
+
+    import java.io.File;
+    import java.io.IOException;
+    import java.util.ArrayList;
+    import java.util.List;
+    import java.util.Scanner;
+    import java.util.regex.Matcher;
+    import java.util.regex.Pattern;
+    import java.util.stream.Collectors;
+
+    public class AnimalKnowledgeTree {
+        static final String fileName = "animals";
+
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        static class Node {
+            public Fact fact;
+            public Animal animal;
+            @JsonIgnore
+            public Node parent;
+            public Node yes;
+            public Node no;
+
+            public Node() { }
+
+            public Node(Fact fact, Animal animal, Node parent, Node yes, Node no) {
+                this.fact = fact;
+                this.animal = animal;
+                this.parent = parent;
+                this.yes = yes;
+                this.no = no;
+            }
+
+            public Node(Fact fact, Node parent) {
+                this.parent = parent;
+                this.fact = fact;
+                this.animal = null;
+            }
+
+            public Node(Animal animal, Node parent) {
+                this.parent = parent;
+                this.fact = null;
+                this.animal = animal;
+            }
+
+            @Override
+            public String toString() {
+                return "fact='" + fact + '\'' + ", animal=" + animal;
+            }
+        }
+
+        Node root;
+        Node current;
+
+        public List<String> searchFacts(String animal) {
+            List<Fact> facts = new ArrayList<>();
+            List<String> result = new ArrayList<>();
+            Node n = search(root, animal);
+            while (n.parent != null) {
+                if (n.parent.fact != null) {
+                    facts.add(n.parent.fact);
+                    result.add(n.parent.fact.formatFact(null, n.parent.yes == n));
+                }
+                n = n.parent;
+            }
+            return result;
+        }
+
+        public List<String> stats() {
+            List<String> result = new ArrayList<>();
+            List<NodeStats> nodes = new ArrayList<>();
+            treeToList(root, 0, nodes);
+            result.add("root node                    " +
+                    root.fact.formatFact(null, true));
+            result.add("total number of nodes        " +
+                    nodes.size());
+            long animalsCount = nodes.stream().filter(it -> it.node.animal != null).count();
+            result.add("total number of animals      " +
+                    animalsCount);
+            result.add("total number of statements   " +
+                    nodes.stream().filter(it -> it.node.animal == null).count());
+            result.add("height of the tree           " +
+                    nodes.stream().reduce((a, b) -> a.depth > b.depth ? a : b).get().depth);
+            result.add("minimum animal's depth       " +
+                    nodes.stream().filter(it -> it.node.animal != null)
+                            .reduce((a, b) -> a.depth < b.depth ? a : b).get().depth);
+            result.add("average animal's depth       " +
+                    nodes.stream().filter(it -> it.node.animal != null)
+                            .map(it -> it.depth)
+                            .reduce(0, Integer::sum) / animalsCount);
+            return result;
+        }
+
+        private void treeToList(Node t, int depth, List<NodeStats> list) {
+            if (t == null) {
+                return;
+            }
+            list.add(new NodeStats(t, depth));
+            treeToList(t.yes, depth + 1, list);
+            treeToList(t.no, depth + 1, list);
+        }
+
+        private Node search(Node t, String animal) {
+            if (t == null || t.animal != null && t.animal.name.equals(animal)) {
+                // return null or node with key
+                return t;
+            }
+            Node n = search(t.no, animal);
+            if (n == null) {
+                return search(t.yes, animal);
+            } else {
+                return n;
+            }
+        }
+
+        public List<Animal> getAnimals() {
+            List<Animal> list = new ArrayList<>();
+            dfs(root, list);
+            return list;
+        }
+
+        private void dfs(Node t, List<Animal> list) {
+            if (t == null) {
+                return;
+            }
+            if (t.animal != null) {
+                list.add(t.animal);
+            }
+            dfs(t.yes, list);
+            dfs(t.no, list);
+        }
+
+        public boolean isEmpty() {
+            return root == null;
+        }
+
+        public void loadFromFile(String type) {
+            String file = fileName + "." + type;
+            System.err.println("loadFromFile " + file);
+            ObjectMapper objectMapper;
+            switch (type) {
+                case "json":
+                    objectMapper = new JsonMapper();
+                    break;
+                case "xml":
+                    objectMapper = new XmlMapper();
+                    break;
+                case "yaml":
+                    objectMapper = new YAMLMapper();
+                    break;
+                default:
+                    return;
+            }
+            try {
+                root = objectMapper.readValue(new File(file), Node.class);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void saveToFile(String type) throws IOException {
+            String file = fileName + "." + type;
+            System.err.println("Saving file " + file);
+            ObjectMapper objectMapper;
+            switch (type) {
+                case "json":
+                    objectMapper = new JsonMapper();
+                    break;
+                case "xml":
+                    objectMapper = new XmlMapper();
+                    break;
+                case "yaml":
+                    objectMapper = new YAMLMapper();
+                    break;
+                default:
+                    return;
+            }
+            objectMapper
+                    .writerWithDefaultPrettyPrinter()
+                    .writeValue(new File(file), root);
+        }
+
+        void enterFact(Animal animal2) {
+            Scanner scanner = new Scanner(System.in);
+            Animal animal1 = current.animal;
+            while (true) {
+                assert animal1 != null;
+                System.out.println("Specify a fact that distinguishes " +
+                        animal1.nameWithArticle() + " from " + animal2.nameWithArticle() + ".\n" +
+                        "The sentence should be of the format: 'It can/has/is ...'.");
+                String input = scanner.nextLine().trim().toLowerCase();
+                Pattern pattern = Pattern.compile("^it\\s+(can|has|is)\\s+(.+)");
+                Matcher matcher = pattern.matcher(input);
+                if (matcher.matches()) {
+                    String verb = matcher.group(1);
+                    String fact = matcher.group(2);
+                    String answer = Util.getAnswer("Is the statement correct for " + animal2.nameWithArticle() + "?");
+    //                verb = Util.question(verb);
+                    Fact result = new Fact(verb, fact);
+                    System.out.println("I learned the following facts about animals:");
+                    if (answer.equals("Yes")) {
+                        System.out.println(result.formatFact(animal2, true));
+                        System.out.println(result.formatFact(animal1, false));
+                    } else {
+                        System.out.println(result.formatFact(animal1, true));
+                        System.out.println(result.formatFact(animal2, false));
+                    }
+
+                    insertFactAndNewAnimal(result, animal2, answer.equals("Yes"));
+
+                    System.out.println("I can distinguish these animals by asking the question:");
+                    System.out.println("- " + result.formatQuestion());
+                    System.out.println("Nice! I've learned so much about animals!");
+                    break;
+                } else {
+                    System.out.println("The examples of a statement:\n" +
+                            " - It can fly\n" +
+                            " - It has horn\n" +
+                            " - It is a mammal");
+                }
+            }
+        }
+
+        public boolean processAnswer(String answer) {
+            System.err.println(current + " -> " + answer);
+            if (answer.equals("Yes")) {
+                System.err.println(current.yes);
+                if (current.animal != null) {
+                    // game over
+                    return true;
+                } else if (current.yes == null) {
+                    Animal animal2 = Util.enterAnimal("I give up. What animal do you have in mind?");
+                    enterFact(animal2);
+                    return true;
+                } else if (current.yes.animal != null) {
+    //                System.out.println(askAboutAnimal(current.yes.animal));
+                    current = current.yes;
+                    return false;
+                } else {
+                    // next question
+    //                System.out.println(askQuestion(current.yes.fact));
+                    current = current.yes;
+                    return false;
+                }
+            } else {
+                System.err.println(current.no);
+                if (current.no == null) {
+                    Animal animal2 = Util.enterAnimal("I give up. What animal do you have in mind?");
+                    enterFact(animal2);
+                    return true;
+                } else if (current.no.animal != null) {
+    //                System.out.println(askAboutAnimal(current.no.animal));
+                    current = current.no;
+                    return false;
+                } else {
+                    // next question
+    //                System.out.println(askQuestion(current.no.fact));
+                    current = current.no;
+                    return false;
+                }
+            }
+        }
+
+        public void startGame() {
+            System.err.println("Start new game");
+            current = root;
+            if (current == null) {
+                System.err.println("empty tree");
+            } else if (current.fact != null) {
+                System.err.println("fact: " + current.fact);
+            } else if (current.animal != null) {
+                System.err.println("animal: " + current.animal.name);
+            }
+        }
+
+        public String getQuestion() {
+            String result;
+            if (current.yes == null) {
+                assert current.animal != null;
+                result = askAboutAnimal(current.animal);
+            } else {
+                result = askQuestion(current.fact.formatQuestion());
+            }
+            return result;
+        }
+
+        private String askQuestion(String fact) {
+            return fact;
+        }
+
+        private String askAboutAnimal(Animal animal) {
+            return "Is it " + animal.article + " " + animal.name + "?";
+        }
+
+        public void insertFactAndNewAnimal(Fact fact, Animal secondAnimal, boolean isTrue) {
+            Node newFact = new Node(fact, current.parent);
+            if (isTrue) {
+                newFact.yes = new Node(secondAnimal, newFact);
+                newFact.no = current;
+            } else {
+                newFact.no = new Node(secondAnimal, newFact);
+                newFact.yes = current;
+            }
+            if (current.parent == null) {
+                root = newFact;
+            } else {
+                if (current.parent.yes == current) {
+                    current.parent.yes = newFact;
+                } else {
+                    current.parent.no = newFact;
+                }
+            }
+            current.parent = newFact;
+        }
+
+        public void insertAnimal(Animal animal) {
+            root = new Node(animal, null);
+        }
+
+        private static class NodeStats {
+            Node node;
+            int depth;
+
+            public NodeStats(Node node, int depth) {
+                this.node = node;
+                this.depth = depth;
+            }
+        }
+
+    //    public static void main(String[] args) throws IOException {
+    //        AnimalKnowledgeTree tree = new AnimalKnowledgeTree();
+    //        Node root = new Node("fact", null, null, null, null);
+    //        tree.root = root;
+    ////        root = new Node();
+    //        tree.root.yes = new Node(new Animal("a", "cat"), tree.root);
+    //        tree.root.no = new Node("another fact", tree.root);
+    //        tree.root.no.yes = new Node(new Animal("a", "doggy"), tree.root.no);
+    //        tree.root.no.no = new Node(new Animal("a", "batty"), tree.root.no);
+    //        String fileName = "AnimalKnowledgeTree.json";
+    //        ObjectMapper objectMapper = new JsonMapper();
+    //
+    //        objectMapper
+    //                .writerWithDefaultPrettyPrinter()
+    //                .writeValue(new File(fileName), tree.root);
+    //    }
+    }
+  learner_created: true
+- name: test/eo.script.yaml
+  visible: false
+  text: |+
+    #
+    # There is a scenario of parameterized test for Esperanto language.
+    #
+    ---
+    - [start, "-type {0}"] # We will test three different file formats: JSON, YAML, XML
+    - - contains
+      - "kiun beston vi plej ŝatas?"
+      - "[Esperanto] When no Knowledge Tree is created yet the program should ask for a favourite animals at first."
+    - [input, kato]
+    - - contains
+      - bonvenon al la sperta sistemo de la besto!
+      - "[Esperanto] After entering the favourite animal the program should welcome the user and represent itself as an expert system"
+
+    #
+    # Start the menu
+    #
+    - - matches
+      - (?si).*Ludi.*Listo.*Serĉi.*Kalkuli.*Eliri.*
+      - "[Esperanto] The program should display the menu"
+
+    #
+    # Let's play the game!
+    #
+    - [input, 1]
+    - - contains
+      - vi pensu pri besto, kaj mi divenos ĝin.
+      - "[Esperanto] The program should asks the user to think of an animal"
+    - - contains
+      - premu enen kiam vi pretas.
+      - "[Esperanto] The computer should make a pause before the game."
+    - [input, ""]
+
+    #
+    # After user press Enter the game started!
+    #
+    - - contains
+      - ĉu ĝi estas kato?
+      - "[Esperanto] The very first question in the very first game should undoubtedly be about a beloved animal."
+    - [input, ne] # We think of about other animal, not about the cat
+    - - contains
+      - mi rezignas. kiun beston vi havas en la kapo?
+      - "[Esperanto] If the program cannot guess the animal, it must give up."
+    - [input, hundo] # Of course, our second animal is a dog!
+    - - contains
+      - indiku fakton, kiu distingas kato de hundo
+      - "[Esperanto] The program should find out how one animal differs from another."
+    - - input
+      - ĝi povas surgrimpi arbon
+    - - contains
+      - ĉu la aserto ĝustas por la hundo?
+      - "[Esperanto] The program should clarify if the statement is correct for a dog."
+    - [input, ne]
+
+    - - contains
+      - la kato povas surgrimpi arbon
+      - The program must generate the correct fact for the first animal.
+
+    - - contains
+      - la hundo ne povas surgrimpi arbon
+      - "[Esperanto] The program must generate the correct fact for the second animal."
+
+    - - matches
+      - "(?is).*(denove|ripeti|ankoraŭ).*"
+      - "[Esperanto] The program should ask the user to play again"
+    - [input, jes] # Yes, we will play once again
+    - [input, ""] # Press ENTER
+    - - contains
+      - povas surgrimpi arbon?
+      - "[Esperanto] After the first game, the starting question should be the question of fact."
+    - [input, jes]
+    - [contains, "ĉu ĝi estas kato?", "[Esperanto] The program must assume that the animal is a cat."]
+    - - input
+      - |
+        ne
+        linko
+        ĝi loĝas en la arbaro
+        jes
+        ne
+    # We finish the game.
+    - - matches
+      - (?si).*Ludi.*Listo.*Serĉi.*Kalkuli.*Eliri.*
+      - "[Esperanto] The program should display the menu"
+    - [input, "0"] # Exit from the application
+    - - matches
+      - "(?si).*(ĝis|estis).*"
+      - "[Esperanto] How about to say goodbye to the user?"
+    - [finish, "The program should finish when user exit"]
+    - - file exists
+      - "animals_eo.{0}"
+      - "The program should save knowledge tree to animals_eo.{0} file."
+    #
+    # After the first session the program created and save the Knowledge Tree
+    # We will run the program again to make sure that all data was saved and restored correctly.
+    #
+    - [start, "-type {0}"]
+    - - not contains
+      - kiun beston vi plej ŝatas?
+      - "[Esperanto] If the tree of knowledge exists, then the program should not ask the user about his favorite animal."
+    - - contains
+      - bonvenon al la sperta sistemo de la besto!
+      - "[Esperanto] The program should immediately greet the user after starting."
+    - - matches
+      - (?si).*Ludi.*Listo.*Serĉi.*Kalkuli.*Eliri.*
+      - "[Esperanto] The program should display the menu"
+
+    #
+    # Let's check which animals are now in our knowledge tree.
+    #
+    - [input, "2"]
+    - - matches
+      - (?si).*hundo.*kato.*linko.*
+      - "[Esperanto] The program should print a list of all animals in alphabetical order."
+
+    #
+    # Check the facts about the animal
+    #
+    - [input, "3"]
+    - - find
+      - enigu .* besto
+      - "[Esperanto] The program should ask the user to enter the name of the animal"
+    - [input, linko]
+    - - contains
+      - faktoj pri la linko
+      - "[Esperanto] The program must find the animal that is in the knowledge tree."
+    - - contains
+      - ĝi povas surgrimpi arbon
+      - "[Esperanto] The program did not print the first fact about the animal"
+    - - contains
+      - ĝi loĝas en la arbaro
+      - "[Esperanto] The program did not print the second fact about the animal"
+
+    #
+    # Check the knowledge tree statistics
+    #
+    - [input, "4"]
+    - [contains, "la statistiko", "The header for the table must be printed"]
+
+    - - matches
+      - (?is).*radika nodo.*povas surgrimpi arbon.*
+      - "[Esperanto] The root element in our tree must be a statement"
+
+    - - matches
+      - (?is).*nombro de nodoj[^\\R]*5.*
+      - "[Esperanto] The total number of nodes in the tree is not counted correctly."
+
+    - - matches
+      - (?is).*nombro de bestoj[^\\R]*3.*
+      - "[Esperanto] The total number of animals in the tree is not counted correctly."
+
+    - - matches
+      - (?is).*nombro de deklaroj[^\\R]*2.*
+      - "[Esperanto] The total number of animals in the tree is not counted correctly."
+
+    - - matches
+      - (?is).*alteco de la arbo[^\\R]*2.*
+      - "[Esperanto] The tree depth was calculated incorrectly."
+
+    - - matches
+      - (?is).*minimuma profundo[^\\R]*1.*
+      - "[Esperanto] The minimum tree depth was calculated incorrectly."
+
+    - - matches
+      - (?is).*averaĝa profundo[^\\R]*1[,.]7.*
+      - "[Esperanto] The average tree depth was calculated incorrectly."
+
+    - [input, "0"] # Exit from the application
+    - [finish, "The program should finish when user exit"]
+    - - file delete
+      - "animals_eo.{0}"
+      - "[Esperanto] The test can't delete animals_eo.{0} file."
+
+
+  learner_created: false
 - name: test/en.data.yaml
+  visible: false
+  text: |-
+    ---
+    - - yaml
+    - - json
+    - - xml
+  learner_created: false
+- name: test/eo.data.yaml
   visible: false
   text: |-
     ---
@@ -198,326 +1080,14 @@ files:
 
 
   learner_created: false
-- name: test/eo.data.yaml
-  visible: false
-  text: |-
-    ---
-    - - yaml
-    - - json
-    - - xml
-  learner_created: false
-- name: test/eo.script.yaml
-  visible: false
-  text: |+
-    #
-    # There is a scenario of parameterized test for Esperanto language.
-    #
-    ---
-    - [start, "-type {0}"] # We will test three different file formats: JSON, YAML, XML
-    - - contains
-      - "kiun beston vi plej ŝatas?"
-      - "[Esperanto] When no Knowledge Tree is created yet the program should ask for a favourite animals at first."
-    - [input, kato]
-    - - contains
-      - bonvenon al la sperta sistemo de la besto!
-      - "[Esperanto] After entering the favourite animal the program should welcome the user and represent itself as an expert system"
-
-    #
-    # Start the menu
-    #
-    - - matches
-      - (?si).*Ludi.*Listo.*Serĉi.*Kalkuli.*Eliri.*
-      - "[Esperanto] The program should display the menu"
-
-    #
-    # Let's play the game!
-    #
-    - [input, 1]
-    - - contains
-      - vi pensu pri besto, kaj mi divenos ĝin.
-      - "[Esperanto] The program should asks the user to think of an animal"
-    - - contains
-      - premu enen kiam vi pretas.
-      - "[Esperanto] The computer should make a pause before the game."
-    - [input, ""]
-
-    #
-    # After user press Enter the game started!
-    #
-    - - contains
-      - ĉu ĝi estas kato?
-      - "[Esperanto] The very first question in the very first game should undoubtedly be about a beloved animal."
-    - [input, ne] # We think of about other animal, not about the cat
-    - - contains
-      - mi rezignas. kiun beston vi havas en la kapo?
-      - "[Esperanto] If the program cannot guess the animal, it must give up."
-    - [input, hundo] # Of course, our second animal is a dog!
-    - - contains
-      - indiku fakton, kiu distingas kato de hundo
-      - "[Esperanto] The program should find out how one animal differs from another."
-    - - input
-      - ĝi povas surgrimpi arbon
-    - - contains
-      - ĉu la aserto ĝustas por la hundo?
-      - "[Esperanto] The program should clarify if the statement is correct for a dog."
-    - [input, ne]
-
-    - - contains
-      - la kato povas surgrimpi arbon
-      - The program must generate the correct fact for the first animal.
-
-    - - contains
-      - la hundo ne povas surgrimpi arbon
-      - "[Esperanto] The program must generate the correct fact for the second animal."
-
-    - - matches
-      - "(?is).*(denove|ripeti|ankoraŭ).*"
-      - "[Esperanto] The program should ask the user to play again"
-    - [input, jes] # Yes, we will play once again
-    - [input, ""] # Press ENTER
-    - - contains
-      - povas surgrimpi arbon?
-      - "[Esperanto] After the first game, the starting question should be the question of fact."
-    - [input, jes]
-    - [contains, "ĉu ĝi estas kato?", "[Esperanto] The program must assume that the animal is a cat."]
-    - - input
-      - |
-        ne
-        linko
-        ĝi loĝas en la arbaro
-        jes
-        ne
-    # We finish the game.
-    - - matches
-      - (?si).*Ludi.*Listo.*Serĉi.*Kalkuli.*Eliri.*
-      - "[Esperanto] The program should display the menu"
-    - [input, "0"] # Exit from the application
-    - - matches
-      - "(?si).*(ĝis|estis).*"
-      - "[Esperanto] How about to say goodbye to the user?"
-    - [finish, "The program should finish when user exit"]
-    - - file exists
-      - "animals_eo.{0}"
-      - "The program should save knowledge tree to animals_eo.{0} file."
-    #
-    # After the first session the program created and save the Knowledge Tree
-    # We will run the program again to make sure that all data was saved and restored correctly.
-    #
-    - [start, "-type {0}"]
-    - - not contains
-      - kiun beston vi plej ŝatas?
-      - "[Esperanto] If the tree of knowledge exists, then the program should not ask the user about his favorite animal."
-    - - contains
-      - bonvenon al la sperta sistemo de la besto!
-      - "[Esperanto] The program should immediately greet the user after starting."
-    - - matches
-      - (?si).*Ludi.*Listo.*Serĉi.*Kalkuli.*Eliri.*
-      - "[Esperanto] The program should display the menu"
-
-    #
-    # Let's check which animals are now in our knowledge tree.
-    #
-    - [input, "2"]
-    - - matches
-      - (?si).*hundo.*kato.*linko.*
-      - "[Esperanto] The program should print a list of all animals in alphabetical order."
-
-    #
-    # Check the facts about the animal
-    #
-    - [input, "3"]
-    - - find
-      - enigu .* besto
-      - "[Esperanto] The program should ask the user to enter the name of the animal"
-    - [input, linko]
-    - - contains
-      - faktoj pri la linko
-      - "[Esperanto] The program must find the animal that is in the knowledge tree."
-    - - contains
-      - ĝi povas surgrimpi arbon
-      - "[Esperanto] The program did not print the first fact about the animal"
-    - - contains
-      - ĝi loĝas en la arbaro
-      - "[Esperanto] The program did not print the second fact about the animal"
-
-    #
-    # Check the knowledge tree statistics
-    #
-    - [input, "4"]
-    - [contains, "la statistiko", "The header for the table must be printed"]
-
-    - - matches
-      - (?is).*radika nodo.*povas surgrimpi arbon.*
-      - "[Esperanto] The root element in our tree must be a statement"
-
-    - - matches
-      - (?is).*nombro de nodoj[^\\R]*5.*
-      - "[Esperanto] The total number of nodes in the tree is not counted correctly."
-
-    - - matches
-      - (?is).*nombro de bestoj[^\\R]*3.*
-      - "[Esperanto] The total number of animals in the tree is not counted correctly."
-
-    - - matches
-      - (?is).*nombro de deklaroj[^\\R]*2.*
-      - "[Esperanto] The total number of animals in the tree is not counted correctly."
-
-    - - matches
-      - (?is).*alteco de la arbo[^\\R]*2.*
-      - "[Esperanto] The tree depth was calculated incorrectly."
-
-    - - matches
-      - (?is).*minimuma profundo[^\\R]*1.*
-      - "[Esperanto] The minimum tree depth was calculated incorrectly."
-
-    - - matches
-      - (?is).*averaĝa profundo[^\\R]*1[,.]7.*
-      - "[Esperanto] The average tree depth was calculated incorrectly."
-
-    - [input, "0"] # Exit from the application
-    - [finish, "The program should finish when user exit"]
-    - - file delete
-      - "animals_eo.{0}"
-      - "[Esperanto] The test can't delete animals_eo.{0} file."
-
-
-  learner_created: false
-- name: test/GuessAnimalTest.java
-  visible: false
-  text: |-
-    import org.hyperskill.hstest.dynamic.DynamicTest;
-    import org.hyperskill.hstest.stage.StageTest;
-    import org.hyperskill.hstest.testcase.CheckResult;
-
-    import java.io.File;
-    import java.io.IOException;
-    import java.util.Locale;
-    import java.util.stream.Stream;
-
-    public class GuessAnimalTest extends StageTest<String> {
-
-        String[] languages = new String[]{"en", "eo"};
-
-        @DynamicTest(data = "languages")
-        CheckResult testLanguages(final String language) throws IOException {
-            final var fileName = "animals" + ("en".equals(language) ? "." : "_" + language + ".");
-
-            final var locale = Locale.getDefault();
-            final var systemLanguage = System.getProperty("user.language");
-            Locale.setDefault(new Locale(language));
-            System.setProperty("user.language", language);
-
-            deleteFiles(fileName);
-            final var result = new Scenario(language).check();
-            deleteFiles(fileName);
-
-            Locale.setDefault(locale);
-            System.setProperty("user.language", systemLanguage);
-
-            return result;
-        }
-
-        private void deleteFiles(String fileName) {
-            Stream.of("yaml", "json", "xml")
-                    .map(fileName::concat)
-                    .map(File::new)
-                    .filter(File::exists)
-                    .forEach(File::delete);
-        }
-    }
-  learner_created: false
-- name: test/Scenario.java
-  visible: false
-  text: |-
-    import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-    import org.hyperskill.hstest.testcase.CheckResult;
-    import org.hyperskill.hstest.testing.TestedProgram;
-
-    import java.io.File;
-    import java.io.IOException;
-    import java.util.Map;
-    import java.util.function.Predicate;
-    import java.util.regex.Pattern;
-
-    import static java.text.MessageFormat.format;
-    import static java.util.function.Predicate.not;
-    import static org.hyperskill.hstest.testcase.CheckResult.correct;
-    import static org.hyperskill.hstest.testcase.CheckResult.wrong;
-
-    public class Scenario {
-        private TestedProgram main;
-        private String output = "";
-        private final File dataFile;
-        private final File scriptFile;
-
-        Scenario(String name) {
-            dataFile = new File("test/" + name + ".data.yaml");
-            scriptFile = new File("test/" + name + ".script.yaml");
-            System.out.println("Scenario '" + name + "' is started.");
-            System.out.println();
-        }
-
-        CheckResult check() {
-
-            final Object[][] data;
-            final String[][] script;
-
-            try {
-                data = new YAMLMapper().readValue(dataFile, String[][].class);
-                script = new YAMLMapper().readValue(scriptFile, String[][].class);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return wrong("Cannot find the files "
-                        + dataFile.getName()
-                        + " or "
-                        + scriptFile.getName()
-                        + ", looks like you deleted or renamed it. Please, revert the changes.");
-            }
-
-            for (var values : data) {
-                for (var action : script) {
-                    final var command = action[0];
-                    switch (command) {
-                        case "start":
-                            main = new TestedProgram();
-                            output = action.length == 1
-                                    ? main.start()
-                                    : main.start(format(action[1], values).split(" "));
-                            output = output.trim().toLowerCase();
-                            continue;
-                        case "input":
-                            output = main.execute(format(action[1], values)).trim().toLowerCase();
-                            continue;
-                        case "finish":
-                            if (main.isFinished()) {
-                                continue;
-                            }
-                            return wrong(format(action[1], values));
-                        default:
-                            final Map<String, Predicate<String>> validation = Map.of(
-                                    "contains", output::contains,
-                                    "not contains", not(output::contains),
-                                    "file exists", file -> new File(file).exists(),
-                                    "file delete", file -> new File(file).delete(),
-                                    "find", pattern -> Pattern.compile(pattern).matcher(output).find(),
-                                    "matches", output::matches);
-
-                            final var expected = format(action[1], values);
-                            if (validation.get(command).test(expected)) {
-                                continue;
-                            }
-                            final var feedback = format(action[2], values) + System.lineSeparator()
-                                    + "Expected " + command + ": \"" + expected + "\"" + System.lineSeparator()
-                                    + "Actual data is: \"" + output + "\".";
-                            return wrong(feedback);
-                    }
-                }
-            }
-            return correct();
-        }
-
-    }
-  learner_created: false
 feedback_link: https://hyperskill.org/projects/132/stages/708/implement#comment
-status: Unchecked
-record: -1
+status: Failed
+feedback:
+  message: "Exception in test #1\n\njava.lang.ClassCastException: class java.lang.String\
+    \ cannot be cast to class [Ljava.lang.String; (java.lang.String and [Ljava.lang.String;\
+    \ are in module java.base of loader &#39;bootstrap&#39;)\r\n\tat java.base/java.util.ResourceBundle.getStringArray(ResourceBundle.java:538)\r\
+    \n\tat animals.Main.main(Main.java:22)\n\nPlease find below the output of your\
+    \ program during this failed test.\n\n---\n\nArguments: -type yaml\n\nScenario\
+    \ &#39;en&#39; is started."
+  time: Mon, 23 Aug 2021 15:23:29 UTC
+record: 6

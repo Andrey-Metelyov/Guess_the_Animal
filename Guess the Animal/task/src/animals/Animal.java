@@ -16,7 +16,7 @@ public class Animal {
 
     @Override
     public String toString() {
-        return "Animal{" + "'" + article + " " + name + "'}";
+        return "Animal{" + "'" + article + "' '" + name + "'}";
     }
 
 //    public static void main(String[] args) throws IOException {

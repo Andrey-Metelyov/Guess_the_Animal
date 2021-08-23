@@ -3,6 +3,8 @@ package animals;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -10,13 +12,13 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import utils.Util;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class AnimalKnowledgeTree {
     static final String fileName = "animals";
@@ -62,12 +64,15 @@ public class AnimalKnowledgeTree {
     Node current;
 
     public List<String> searchFacts(String animal) {
-        List<Fact> facts = new ArrayList<>();
+//        List<Fact> facts = new ArrayList<>();
+        System.err.printf("searchFacts('%s')\n", animal);
         List<String> result = new ArrayList<>();
         Node n = search(root, animal);
+        System.err.printf("found node: %s\n", n);
+        System.err.printf("node.parent: %s\n", n.parent);
         while (n.parent != null) {
             if (n.parent.fact != null) {
-                facts.add(n.parent.fact);
+//                facts.add(n.parent.fact);
                 result.add(n.parent.fact.formatFact(null, n.parent.yes == n));
             }
             n = n.parent;
@@ -94,9 +99,9 @@ public class AnimalKnowledgeTree {
                 nodes.stream().filter(it -> it.node.animal != null)
                         .reduce((a, b) -> a.depth < b.depth ? a : b).get().depth);
         result.add("average animal's depth       " +
-                nodes.stream().filter(it -> it.node.animal != null)
+                String.format("%.1f", nodes.stream().filter(it -> it.node.animal != null)
                         .map(it -> it.depth)
-                        .reduce(0, Integer::sum) / animalsCount);
+                        .reduce(0, Integer::sum).doubleValue() / animalsCount));
         return result;
     }
 
@@ -110,8 +115,10 @@ public class AnimalKnowledgeTree {
     }
 
     private Node search(Node t, String animal) {
+//        System.err.printf("search in %s %s\n", t, animal);
         if (t == null || t.animal != null && t.animal.name.equals(animal)) {
             // return null or node with key
+//            System.err.printf("search return: %s\n", t);
             return t;
         }
         Node n = search(t.no, animal);
@@ -162,8 +169,26 @@ public class AnimalKnowledgeTree {
         }
         try {
             root = objectMapper.readValue(new File(file), Node.class);
+            fixParents(root);
+        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (JsonParseException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void fixParents(Node t) {
+        if (t.yes != null) {
+            t.yes.parent = t;
+            fixParents(t.yes);
+        }
+        if (t.no != null) {
+            t.no.parent = t;
+            fixParents(t.no);
         }
     }
 

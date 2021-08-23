@@ -2,12 +2,11 @@ package utils;
 
 import animals.Animal;
 
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Util {
+    public static ResourceBundle bundle = ResourceBundle.getBundle("messages");
+
     public static String getArticle(String word) {
         String article;
         if ("aoeiu".contains(word.substring(0, 1))) {
@@ -52,13 +51,7 @@ public class Util {
                 "n", "no", "no way", "nah", "nope", "negative",
                 "i don't think so", "yeah no"
         );
-        String[] dontUnderstands = {
-                "I'm not sure I caught you: was it yes or no?",
-                "Funny, I still don't understand, is it yes or no?",
-                "Oh, it's too complicated for me: just tell me yes or no.",
-                "Could you please simply say yes or no?",
-                "Oh, no, don't try to confuse me: say yes or no."
-        };
+//        String[] dontUnderstands = ;
         System.out.println(question);
         while (true) {
             String answer = scanner.nextLine()
@@ -70,11 +63,15 @@ public class Util {
             } else if (negativeAnswers.contains(answer)) {
                 return "No";
             }
-            System.out.println(Util.getRandomLine(dontUnderstands));
+
+            System.out.println(Util.getRandomLine(bundle.getStringArray("ask.again")));
         }
     }
 
     public static String getRandomLine(String[] lines) {
+//        if (lines == null) {
+//            return "";
+//        }
         return lines[(int) (Math.random() * lines.length)];
     }
 
@@ -93,22 +90,16 @@ public class Util {
         Calendar calendar = Calendar.getInstance();
         int hours = calendar.get(Calendar.HOUR_OF_DAY);
         if (hours >= 5 && hours < 12) {
-            System.out.println("Good morning");
+            System.out.println(bundle.getString("greeting.morning"));
         } else if (hours > 12 && hours < 18) {
-            System.out.println("Good afternoon");
+            System.out.println(bundle.getString("greeting.afternoon"));
         } else {
-            System.out.println("Good evening");
+            System.out.println(bundle.getString("greeting.evening"));
         }
     }
 
     public static void bye() {
-        String[] byes = {
-                "Have a nice day!",
-                "See you soon!",
-                "Bye!",
-                "Пока",
-                "Aufwiedesein"
-        };
+        String[] byes = bundle.getStringArray("farewell");
         System.out.println(getRandomLine(byes));
     }
 }
