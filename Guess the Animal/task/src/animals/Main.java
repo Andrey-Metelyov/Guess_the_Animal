@@ -69,6 +69,11 @@ public class Main {
     }
 
     private static void calc() {
+        System.out.println("The Knowledge Tree stats\n");
+        List<String> stats = tree.stats();
+        System.out.println(
+                stats.stream()
+                        .collect(Collectors.joining("\n - ", " - ", "\n")));
     }
 
     private static void search() {

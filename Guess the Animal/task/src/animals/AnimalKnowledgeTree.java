@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class AnimalKnowledgeTree {
     static final String fileName = "animals";
@@ -74,6 +75,40 @@ public class AnimalKnowledgeTree {
         return result;
     }
 
+    public List<String> stats() {
+        List<String> result = new ArrayList<>();
+        List<NodeStats> nodes = new ArrayList<>();
+        treeToList(root, 0, nodes);
+        result.add("root node                    " +
+                root.fact.formatFact(null, true));
+        result.add("total number of nodes        " +
+                nodes.size());
+        long animalsCount = nodes.stream().filter(it -> it.node.animal != null).count();
+        result.add("total number of animals      " +
+                animalsCount);
+        result.add("total number of statements   " +
+                nodes.stream().filter(it -> it.node.animal == null).count());
+        result.add("height of the tree           " +
+                nodes.stream().reduce((a, b) -> a.depth > b.depth ? a : b).get().depth);
+        result.add("minimum animal's depth       " +
+                nodes.stream().filter(it -> it.node.animal != null)
+                        .reduce((a, b) -> a.depth < b.depth ? a : b).get().depth);
+        result.add("average animal's depth       " +
+                nodes.stream().filter(it -> it.node.animal != null)
+                        .map(it -> it.depth)
+                        .reduce(0, Integer::sum) / animalsCount);
+        return result;
+    }
+
+    private void treeToList(Node t, int depth, List<NodeStats> list) {
+        if (t == null) {
+            return;
+        }
+        list.add(new NodeStats(t, depth));
+        treeToList(t.yes, depth + 1, list);
+        treeToList(t.no, depth + 1, list);
+    }
+
     private Node search(Node t, String animal) {
         if (t == null || t.animal != null && t.animal.name.equals(animal)) {
             // return null or node with key
@@ -112,14 +147,18 @@ public class AnimalKnowledgeTree {
         String file = fileName + "." + type;
         System.err.println("loadFromFile " + file);
         ObjectMapper objectMapper;
-        if (type.equals("json")) {
-            objectMapper = new JsonMapper();
-        } else if (type.equals("xml")) {
-            objectMapper = new XmlMapper();
-        } else if (type.equals("yaml")) {
-            objectMapper = new YAMLMapper();
-        } else {
-            return;
+        switch (type) {
+            case "json":
+                objectMapper = new JsonMapper();
+                break;
+            case "xml":
+                objectMapper = new XmlMapper();
+                break;
+            case "yaml":
+                objectMapper = new YAMLMapper();
+                break;
+            default:
+                return;
         }
         try {
             root = objectMapper.readValue(new File(file), Node.class);
@@ -132,14 +171,18 @@ public class AnimalKnowledgeTree {
         String file = fileName + "." + type;
         System.err.println("Saving file " + file);
         ObjectMapper objectMapper;
-        if (type.equals("json")) {
-            objectMapper = new JsonMapper();
-        } else if (type.equals("xml")) {
-            objectMapper = new XmlMapper();
-        } else if (type.equals("yaml")) {
-            objectMapper = new YAMLMapper();
-        } else {
-            return;
+        switch (type) {
+            case "json":
+                objectMapper = new JsonMapper();
+                break;
+            case "xml":
+                objectMapper = new XmlMapper();
+                break;
+            case "yaml":
+                objectMapper = new YAMLMapper();
+                break;
+            default:
+                return;
         }
         objectMapper
                 .writerWithDefaultPrettyPrinter()
@@ -281,6 +324,16 @@ public class AnimalKnowledgeTree {
 
     public void insertAnimal(Animal animal) {
         root = new Node(animal, null);
+    }
+
+    private static class NodeStats {
+        Node node;
+        int depth;
+
+        public NodeStats(Node node, int depth) {
+            this.node = node;
+            this.depth = depth;
+        }
     }
 
 //    public static void main(String[] args) throws IOException {
