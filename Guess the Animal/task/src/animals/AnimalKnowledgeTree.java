@@ -14,6 +14,8 @@ import utils.Util;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.Format;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -323,7 +325,10 @@ public class AnimalKnowledgeTree {
     }
 
     private String askAboutAnimal(Animal animal) {
-        return "Is it " + animal.article + " " + animal.name + "?";
+        MessageFormat mf = new MessageFormat(Util.patterns.getString("guessAnimal.1.replace"));
+        Object[] arg = {"", animal.article + " " + animal.name};
+        String result = mf.format(arg);
+        return result;
     }
 
     public void insertFactAndNewAnimal(Fact fact, Animal secondAnimal, boolean isTrue) {

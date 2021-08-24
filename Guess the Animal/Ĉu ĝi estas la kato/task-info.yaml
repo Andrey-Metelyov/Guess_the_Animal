@@ -1083,11 +1083,18 @@ files:
 feedback_link: https://hyperskill.org/projects/132/stages/708/implement#comment
 status: Failed
 feedback:
-  message: "Exception in test #1\n\njava.lang.ClassCastException: class java.lang.String\
-    \ cannot be cast to class [Ljava.lang.String; (java.lang.String and [Ljava.lang.String;\
-    \ are in module java.base of loader &#39;bootstrap&#39;)\r\n\tat java.base/java.util.ResourceBundle.getStringArray(ResourceBundle.java:538)\r\
-    \n\tat animals.Main.main(Main.java:22)\n\nPlease find below the output of your\
-    \ program during this failed test.\n\n---\n\nArguments: -type yaml\n\nScenario\
-    \ &#39;en&#39; is started."
-  time: Mon, 23 Aug 2021 15:23:29 UTC
+  message: "Wrong answer in test #1\n\nThe very first question in the very first game\
+    \ should undoubtedly be about a beloved animal.\r\nExpected contains: &quot;is\
+    \ it a cat?&quot;\r\nActual data is: &quot;is it $1?&quot;.\n\nPlease find below\
+    \ the output of your program during this failed test.\nNote that the &#39;&gt;&#39;\
+    \ character indicates the beginning of the input line.\n\n---\n\nArguments: -type\
+    \ yaml\n\nstdout:\nScenario &#39;en&#39; is started.\n\nWelcome to the animal’\
+    s expert system!\nGood evening!\nI want to learn about animals.\nWhich animal\
+    \ do you like most?\n&gt; cat\nWelcome to the animal’s expert system!\nWhat do\
+    \ you want to do:\n1. Play the guessing game\n2. List of all animals\n3. Search\
+    \ for an animal\n4. Calculate statistics\n5. Print the Knowledge Tree\n0. Exit\n\
+    &gt; 1\nYou think of an animal, and I guess it.\nPress enter when you’re ready.\n\
+    &gt; \nis it $1?\n\nstderr:\n---------*---------*---------*---------*---------*---------*---------\n\
+    [-type, yaml]\nloadFromFile animals.yaml\nStart new game\nanimal: cat"
+  time: Tue, 24 Aug 2021 13:46:27 UTC
 record: 6

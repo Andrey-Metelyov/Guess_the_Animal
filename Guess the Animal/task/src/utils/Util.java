@@ -5,7 +5,8 @@ import animals.Animal;
 import java.util.*;
 
 public class Util {
-    public static ResourceBundle bundle = ResourceBundle.getBundle("messages");
+    public static ResourceBundle messages = ResourceBundle.getBundle("messages");
+    public static ResourceBundle patterns = ResourceBundle.getBundle("patterns");
 
     public static String getArticle(String word) {
         String article;
@@ -64,7 +65,7 @@ public class Util {
                 return "No";
             }
 
-            System.out.println(Util.getRandomLine(bundle.getStringArray("ask.again")));
+            System.out.println(Util.getRandomLine(messages.getStringArray("ask.again")));
         }
     }
 
@@ -90,16 +91,16 @@ public class Util {
         Calendar calendar = Calendar.getInstance();
         int hours = calendar.get(Calendar.HOUR_OF_DAY);
         if (hours >= 5 && hours < 12) {
-            System.out.println(bundle.getString("greeting.morning"));
+            System.out.println(messages.getString("greeting.morning"));
         } else if (hours > 12 && hours < 18) {
-            System.out.println(bundle.getString("greeting.afternoon"));
+            System.out.println(messages.getString("greeting.afternoon"));
         } else {
-            System.out.println(bundle.getString("greeting.evening"));
+            System.out.println(messages.getString("greeting.evening"));
         }
     }
 
     public static void bye() {
-        String[] byes = bundle.getStringArray("farewell");
+        String[] byes = messages.getString("farewell").split("\f");
         System.out.println(getRandomLine(byes));
     }
 }
